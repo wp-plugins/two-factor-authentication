@@ -13,7 +13,7 @@ Secure WordPress login with Two Factor Authentication - supports WooCommerce, fr
 
 == Description ==
 
-Secure WordPress login with this two factor authentication. Users for whom it is enabled will require a one-time code in order to log in.
+Secure WordPress login with this two factor authentication. Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>.
 
 Features (see the "Screenshots" for more information):
 
