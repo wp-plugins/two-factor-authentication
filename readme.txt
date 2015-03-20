@@ -9,7 +9,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Secure WordPress login with Two Factor Authentication - supporting WooCommerce, front-end configuration, HOTP and TOTP (Google Authenticator, Authy, etc.)
+Secure WordPress login with Two Factor Authentication - supports WooCommerce, front-end configuration, HOTP + TOTP (Google Authenticator, Authy, etc.)
 
 == Description ==
 
