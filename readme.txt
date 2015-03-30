@@ -13,7 +13,9 @@ Secure WordPress login with Two Factor Authentication - supports WooCommerce, fr
 
 == Description ==
 
-Secure WordPress login with this two factor authentication (TFA). Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>, with over 400,000 active installs.
+Secure WordPress login with this two factor authentication (TFA) plugin. Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>, with over 400,000 active installs.
+
+Are you completely new to TFA? <a href="https://wordpress.org/plugins/two-factor-authentication/faq/">If so, please see our FAQ</a>.
 
 Features (see the "Screenshots" for more information):
 
@@ -55,6 +57,34 @@ This plugin requires PHP version 5.3 or higher and support for [PHP mcrypt](http
 4. Find site-wide settings in Settings -> Two Factor Authentication ; find your own user settings in the top-level menu entry "Two Factor Auth".
 
 == Frequently Asked Questions ==
+
+= What is two factor authentication? =
+
+Basically, it's to do with securing your logins, so that there's more than one link in the chain needing to be broken before an unwanted intruder can get in your website.
+
+By default, your WordPress accounts are protected by only one thing: your password. If that's broken, then everything's wide open.
+
+"Two factor" means adding a second requirement. Usually, this is a code that comes to a device you own (e.g. phone, tablet) - so, someone can't get into your website without getting hold of your device. <a href="https://en.wikipedia.org/wiki/Two_factor_authentication">You can get a longer answer from Wikipedia.</a>
+
+= Why should I care? =
+
+Read this: http://www.wired.com/2012/08/apple-amazon-mat-honan-hacking/
+
+= How does two factor authentication work? =
+
+Since "two factor authentication" just means "a second something is necessary to get in", this answer depends upon the particular set-up. In the most common case, a numeric code is shown on your phone, tablet or other device. This code be sent via an SMS; this then depends on the mobile phone network working. This plugin does not uses that method. Instead, it uses a standard mathematical algorithm to generate codes that are only valid once each, or for only for 30 seconds (depending on which algorithm you choose). Your phone or tablet can know the code after it has been set up once (often, by just scanning a bar-code off the screen).
+
+= What do I need to set up on my phone/tablet (etc.) in order to generate the codes? =
+
+This depends on your particular make of phone, and your preferences. Google have produced a popular app called "Google Authenticator", which is a preferred option for many people because it is easy to use and can be set up via just scanning a bar code off your screen - <a href="https://support.google.com/accounts/answer/1066447"> follow this link, and ignore the first paragraph that is talking about 2FA on your Google account</a> (rather than being relevant to this plugin).
+
+= What if I do not have a phone or tablet? =
+
+Many and various devices and programs can generate the codes. One option is an add-on for your web browser; for example, <a href="https://chrome.google.com/webstore/search/authenticator">here are some apps and add-ons for Google Chrome</a>. Wikipedia <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm#Client_implementations">lists various programs for different computers</a>.
+
+= What are HOTP and TOTP? =
+
+These are the names of the two mathematical algorithms that are used to create the special codes. These are industry-standard algorithms, devised by expert cryptographers. HOTP is less popular, but the device that generates the codes does not need to know the correct time (instead, the codes are generated in a precise sequence). TOTP is much more popular, and generates codes that are only valid for 30 seconds (and so your device needs to know the time). I'd recommend TOTP, as HOTP can be annoying if something causes the sequences to get out of sync.
 
 = What is the shortcode to use for front-end settings? =
 
