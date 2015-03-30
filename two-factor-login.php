@@ -5,7 +5,7 @@ Plugin URI:
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.0
+Version: 1.1
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.0';
+	public $version = '1.1';
 	private $php_required = '5.3';
 
 	public function __construct() {
@@ -44,12 +44,17 @@ class Simba_Two_Factor_Authentication {
 			//Save settings
 			add_action('admin_init', array($this, 'check_possible_reset'));
 			
-			//Add to Settings menu
-			add_action('admin_menu', array($this, 'addTwoFactorAuthAdminMenu'));
-			
+			//Add to Settings menu on sites
+			add_action('admin_menu', array($this, 'menu_entry_for_admin'));
+
 			//Add settings link in plugin list
 			$plugin = plugin_basename(__FILE__); 
 			add_filter("plugin_action_links_".$plugin, array($this, 'addPluginSettingsLink' ));
+			add_filter('network_admin_plugin_action_links_'.$plugin, array($this, 'addPluginSettingsLink' ));
+
+			// Entry that everybody gets
+			add_action('network_admin_menu', array($this, 'admin_menu'));
+			add_action('admin_menu', array($this, 'admin_menu'));
 
 		} else {
 			add_action('init', array($this, 'check_possible_reset'));
@@ -60,8 +65,8 @@ class Simba_Two_Factor_Authentication {
 		//Show off sync message for hotp
 		add_action('admin_notices', array($this, 'tfaShowHOTPOffSyncMessage'));
 		add_action('login_enqueue_scripts', array($this, 'login_enqueue_scripts'));
-		add_action('admin_menu', array($this, 'admin_menu'));
 
+		
 		add_filter('authenticate', array($this, 'tfaVerifyCodeAndUser'), 99999999999, 3);
 	}
 
@@ -189,6 +194,14 @@ class Simba_Two_Factor_Authentication {
 		}
 	}
 
+	public function get_option($key) {
+		if (!is_multisite()) return get_option($key);
+		switch_to_blog(1);
+		$v = get_option($key);
+		restore_current_blog();
+		return $v;
+	}
+
 	public function tfaListUserRolesCheckboxes()
 	{
 		global $wp_roles;
@@ -196,7 +209,7 @@ class Simba_Two_Factor_Authentication {
 		
 		foreach($wp_roles->role_names as $id => $name)
 		{	
-			$setting = get_option('tfa_'.$id);
+			$setting = $this->get_option('tfa_'.$id);
 			$setting = $setting === false || $setting ? 1 : 0;
 			
 			print '<input type="checkbox" id="tfa_'.$id.'" name="tfa_'.$id.'" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$id.'">'.htmlspecialchars($name)."</label><br>\n";
@@ -207,7 +220,7 @@ class Simba_Two_Factor_Authentication {
 	public function tfaListDefaultHMACRadios()
 	{
 		$tfa = $this->getTFA();
-		$setting = get_option('tfa_default_hmac');
+		$setting = $this->get_option('tfa_default_hmac');
 		$setting = $setting === false || !$setting ? $tfa->default_hmac : $setting;
 		
 		$types = array('totp' => __('TOTP (time based - most common algorithm; used by Google Authenticator)', SIMBA_TFA_TEXT_DOMAIN), 'hotp' => __('HOTP (event based)', SIMBA_TFA_TEXT_DOMAIN));
@@ -216,19 +229,20 @@ class Simba_Two_Factor_Authentication {
 			print '<input type="radio" id="tfa_default_hmac_'.esc_attr($id).'" name="tfa_default_hmac" value="'.$id.'" '.($setting == $id ? 'checked="checked"' :'').'> '.'<label for="tfa_default_hmac_'.esc_attr($id).'">'."$name</label><br>\n";
 	}
 
-
 	public function tfaListXMLRPCStatusRadios()
 	{
 		$tfa = $this->getTFA();
-		$setting = get_option('tfa_xmlrpc_on');
+		$setting = $this->get_option('tfa_xmlrpc_on');
 		$setting = $setting === false || !$setting ? 0 : 1;
 		
-		$types = array('0' => __('OFF', SIMBA_TFA_TEXT_DOMAIN), '1' => __('ON', SIMBA_TFA_TEXT_DOMAIN));
+		$types = array(
+			'0' => __('Do not require 2FA over XMLRPC (best option if you must use XMLRPC and your client does not support 2FA)', SIMBA_TFA_TEXT_DOMAIN),
+			'1' => __('Do require 2FA over XMLRPC (best option if you do not use XMLRPC or are unsure)', SIMBA_TFA_TEXT_DOMAIN)
+		);
 		
 		foreach($types as $id => $name)
-			print '<input type="radio" name="tfa_xmlrpc_on" value="'.$id.'" '.($setting == $id ? 'checked="checked"' :'').'> - '.$name."<br>\n";
+			print '<input type="radio" name="tfa_xmlrpc_on" id="tfa_xmlrpc_on_'.$id.'" value="'.$id.'" '.($setting == $id ? 'checked="checked"' :'').'> <label for="tfa_xmlrpc_on_'.$id.'">'.$name."</label><br>\n";
 	}
-
 
 	public function tfaShowAdminSettingsPage()
 	{
@@ -242,28 +256,44 @@ class Simba_Two_Factor_Authentication {
 		include SIMBA_TFA_PLUGIN_DIR.'/includes/user_settings.php';
 	}
 
-
 	public function admin_menu() 
 	{
 		$tfa = $this->getTFA();
 		
 		global $current_user;
 		if(!$tfa->isActivatedForUser($current_user->ID)) return;
-		
 		add_menu_page(__('Two Factor Authentication', SIMBA_TFA_TEXT_DOMAIN), __('Two Factor Auth', SIMBA_TFA_TEXT_DOMAIN), 'read', 'two-factor-auth-user', array($this, 'tfaShowUserSettingsPage'), SIMBA_TFA_PLUGIN_URL.'/img/tfa_admin_icon_16x16.png', 72);
 	}
 
-	public function addTwoFactorAuthAdminMenu()
-	{
+	public function menu_entry_for_admin() {
+
+		// On multisite, only show the entry on site ID 1 - to ensure options get saved in the right place.
+		global $current_site, $wpdb;
+		// $current_site is not the right way to do this - it is internal, and could be anything
+		if (is_multisite() && (!is_super_admin() || !is_object($wpdb) || !isset($wpdb->blogid) || 1 != $wpdb->blogid)) return;
+
 		add_action( 'admin_init', array($this, 'tfaRegisterTwoFactorAuthSettings' ));
-		add_options_page('Two Factor Authentication', 'Two Factor Authentication', 'manage_options', 'two-factor-auth', array($this, 'tfaShowAdminSettingsPage'));
+
+		add_options_page(
+			__('Two Factor Authentication', SIMBA_TFA_TEXT_DOMAIN),
+			__('Two Factor Authentication', SIMBA_TFA_TEXT_DOMAIN),
+			'manage_options',
+			'two-factor-auth',
+			array($this, 'tfaShowAdminSettingsPage')
+		);
 	}
 
 	public function addPluginSettingsLink($links)
 	{
-		
-		$link = '<a href="options-general.php?page=two-factor-auth">'.__('Plugin settings', SIMBA_TFA_TEXT_DOMAIN).'</a>';
-		array_unshift($links, $link);
+		if (!is_network_admin()) {
+			$link = '<a href="options-general.php?page=two-factor-auth">'.__('Plugin settings', SIMBA_TFA_TEXT_DOMAIN).'</a>';
+			array_unshift($links, $link);
+		} else {
+			switch_to_blog(1);
+			$link = '<a href="'.admin_url('options-general.php').'?page=two-factor-auth">'.__('Plugin settings', SIMBA_TFA_TEXT_DOMAIN).'</a>';
+			restore_current_blog();
+			array_unshift($links, $link);
+		}
 
 		$link2 = '<a href="admin.php?page=two-factor-auth-user">'.__('User settings', SIMBA_TFA_TEXT_DOMAIN).'</a>';
 		array_unshift($links, $link2);

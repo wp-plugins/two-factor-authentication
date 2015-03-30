@@ -147,7 +147,6 @@ class Simba_TFA  {
 		}
 		return true;
 	}
-
 	
 	public function authUserFromLogin($params)
 	{
@@ -291,8 +290,9 @@ class Simba_TFA  {
 	
 	public function getUserAlgorithm($user_id)
 	{
+		global $simba_two_factor_authentication;
 		$setting = get_user_meta($user_id, 'tfa_algorithm_type', true);
-		$default_hmac = get_option('tfa_default_hmac');
+		$default_hmac = $simba_two_factor_authentication->get_option('tfa_default_hmac');
 		$default_hmac = $default_hmac ? $default_hmac : $this->default_hmac;
 		
 		$setting = $setting === false || !$setting ? $default_hmac : $setting;
@@ -303,9 +303,11 @@ class Simba_TFA  {
 	{
 		$user = new WP_User($user_id);
 
+		global $simba_two_factor_authentication;
+
 		foreach($user->roles as $role)
 		{
-			$db_val = get_option('tfa_'.$role);
+			$db_val = $simba_two_factor_authentication->get_option('tfa_'.$role);
 			$db_val = $db_val === false || $db_val ? 1 : 0; //Nothing saved or > 0 returns 1;
 			
 			if($db_val)
@@ -324,19 +326,24 @@ class Simba_TFA  {
 		return $enabled;
 	}
 
-	public function saveCallerStatus($caller_id, $status)
-	{
-		if($caller_id == 'xmlrpc')
-			set_option('tfa_xmlrpc_on', $status);
-	}
+	// Disabled: unused
+// 	public function saveCallerStatus($caller_id, $status)
+// 	{
+// 		global $simba_two_factor_authentication;
+// 		if($caller_id == 'xmlrpc')
+// 			$simba_two_factor_authentication->set_option('tfa_xmlrpc_on', $status);
+// 	}
 
 	private function isCallerActive($params)
 	{
 
+		return true;
+
 		if(!preg_match('/(\/xmlrpc\.php)$/', trim($params['caller'])))
 			return true;
 
-		$saved_data = get_option('tfa_xmlrpc_on');
+		global $simba_two_factor_authentication;
+		$saved_data = $simba_two_factor_authentication->get_option('tfa_xmlrpc_on');
 		
 		if($saved_data)
 			return true;

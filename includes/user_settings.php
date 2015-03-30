@@ -2,7 +2,12 @@
 
 if (!defined('ABSPATH')) die('Access denied.');
 
-global $current_user, $simba_two_factor_authentication;
+global $current_user, $simba_two_factor_authentication, $wpdb;
+
+if (is_multisite() && (!is_super_admin() || !is_object($wpdb) || !isset($wpdb->blogid) || 1 != $wpdb->blogid)) {
+	die("How did you get here?");
+	return;
+}
 
 if(!empty($_POST['tfa_enable_tfa']) && !empty($_GET['settings-updated']) == 'true') {
 	$tfa->changeEnableTFA($current_user->ID, $_POST['tfa_enable_tfa']);
@@ -37,7 +42,7 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 		<h2><?php _e('Activate two factor authentication', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 		<p>
 			<?php
-				$date_now = get_date_from_gmt(gmdate('Y-m-d H:i:s'), get_option('date_format').' '.get_option('time_format'));
+				$date_now = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'Y-m-d H:i:s');
 				echo sprintf(__('N.B. It is important for both the server and your TFA device to have accurate time. The current UTC time when this page loaded: %s', SIMBA_TFA_TEXT_DOMAIN), htmlspecialchars($date_now));
 			?>
 		</p>

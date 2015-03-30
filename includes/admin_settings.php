@@ -24,6 +24,21 @@ $tfa->setUserHMACTypes();
 		<a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage", SIMBA_TFA_TEXT_DOMAIN);?></a> 
 		<br>
 
+	<?php
+		if (is_multisite()) {
+			if (is_super_admin()) {
+				?>
+				<p style="font-size: 120%; font-weight: bold;">
+				<?php _e('N.B. These two-factor settings apply to your entire WordPress network. (i.e. They are not localised to one particular site).', SIMBA_TFA_TEXT_DOMAIN);?>
+				</p>
+				<?php
+			} else {
+				// Should not be possible to reach this; but an extra check does not hurt.
+				die('Security check');
+			}
+		}
+	?>
+
 	<form method="post" action="options.php" style="margin-top: 12px">
 	<?php
 		settings_fields('tfa_user_roles_group');
@@ -37,17 +52,27 @@ $tfa->setUserHMACTypes();
 	<?php submit_button(); ?>
 	</form>
 	
-	<!-- This is turned off, as it is not used -->
-	<div style="display:none;">
+	<div>
 		<hr>
 		<form method="post" action="options.php" style="margin-top: 40px">
 		<?php
 			settings_fields('tfa_xmlrpc_status_group');
 		?>
-			<h2><?php _e('XMLRPC status', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
+			<h2><?php _e('XMLRPC requests', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 			<?php 
-			$name = apply_filters('tfa_white_label', 'Two Factor Authentication');
-			echo sprintf(__("%s for XMLRPC users is turned off by default since there exists no clients that supports it. Leave this to off if you don't have a custom XMLRPC client that supports it or you won't be able to publish posts via Wordpress XMLRPC API.", SIMBA_TFA_TEXT_DOMAIN), $name);
+
+			echo '<p>';
+			echo __("XMLRPC is a feature within WordPress allowing other computers to talk to your WordPress install. For example, it could be used by an app on your tablet that allows you to blog directly from the app (instead of needing the WordPress dashboard).");
+
+			echo '<p></p>';
+
+			echo __("Unfortunately, XMLRPC also provides a way for attackers to perform actions on your WordPress site, using only a password (i.e. without a two-factor password). More unfortunately, authors of legitimate programmes using XMLRPC have not yet added two-factor support to their code.", SIMBA_TFA_TEXT_DOMAIN);
+
+			echo '<p></p>';
+
+			echo __(" i.e. XMLRPC requests coming in to WordPress (whether from a legitimate app, or from an attacker) can only be verified using the password - not with a two-factor code. As a result, there not be an ideal option to pick below. You may have to choose between the convenience of using your apps, or the security of two factor authentication.", SIMBA_TFA_TEXT_DOMAIN);
+
+			echo '</p>';
 			?>
 			<p>
 			<?php
@@ -82,10 +107,12 @@ $tfa->setUserHMACTypes();
 	<p>
 		<?php
 		
+		// Disabled
+		if (1==0) {
 		//List users and type of tfa
 		foreach($wp_roles->role_names as $id => $name)
 		{	
-			$setting = get_option('tfa_'.$id);
+			$setting = $simba_two_factor_authentication->get_option('tfa_'.$id);
 			$setting = $setting === false || $setting ? 1 : 0;
 			if(!$setting)
 				continue;
@@ -112,7 +139,8 @@ $tfa->setUserHMACTypes();
 				print '<br>';
 			}
 		}
-		
+		}
+
 		?>
 	</p>
 	<hr>

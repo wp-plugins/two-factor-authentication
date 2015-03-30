@@ -1,8 +1,8 @@
 === Two Factor Authentication ===
-Tags: auth, two factor auth, login, security, authenticate, password, hacking, security, woocommerce, tfa, google authenticator, authy, two factor
+Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
-Tested up to: 4.1
-Stable tag: 1.0
+Tested up to: 4.2
+Stable tag: 1.1
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -13,7 +13,7 @@ Secure WordPress login with Two Factor Authentication - supports WooCommerce, fr
 
 == Description ==
 
-Secure WordPress login with this two factor authentication. Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>.
+Secure WordPress login with this two factor authentication (TFA). Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>, with over 400,000 active installs.
 
 Features (see the "Screenshots" for more information):
 
@@ -23,10 +23,10 @@ Features (see the "Screenshots" for more information):
 * TFA can be turned on or off by each user
 * Supports front-end editing of settings, via [twofactor_user_settings] shortcode (i.e. users don't need access to the WP dashboard).
 * Includes support for the WooCommerce login form
+* WP Multisite compatible (plugin should be network activated)
 * Simplified user interface and code base for ease of use and performance
 * Added a number of extra security checks to the original forked code
 * Removed the "email" authentication method (email is not truly two-factor, unless you have two separate email accounts for which neither's "lost login" link takes you to the other).
-* Removed the XMLRPC authentication setup, as there is no known code in the world that uses TFA over XMLRPC.
 * Emergency codes (Premium version, release imminent)
 
 = Why? =
@@ -87,6 +87,12 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 == Changelog ==
 
+= 1.1 - 30/Mar/2015 =
+
+* Support added for multisite installs. (Plugin should be network-activated).
+* Tested + compatible on upcoming WP 4.2 (tested on Beta 3)
+* Re-add option to require 2FA over XMLRPC (without specific code, XMLRPC clients don't/can't use 2FA - but requiring it effectively blocks hackers who want to crack your password by using this weakness in XMLRPC)
+
 = 1.0 - 20/Mar/2015 =
 
 * First version, forked from Oskar Hane's https://wordpress.org/plugins/two-factor-auth/
@@ -99,4 +105,4 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 
 == Upgrade Notice ==
-* First release of this new, forked plugin
+* Add support for multisite installs. Add XMLRPC checking.
