@@ -26,7 +26,8 @@ $tfa->setUserHMACTypes();
 
 	<?php
 		if (is_multisite()) {
-			if (is_super_admin()) {
+			global $wpdb;
+			if (is_super_admin() && is_object($wpdb) && isset($wpdb->blogid) && 1 == $wpdb->blogid) {
 				?>
 				<p style="font-size: 120%; font-weight: bold;">
 				<?php _e('N.B. These two-factor settings apply to your entire WordPress network. (i.e. They are not localised to one particular site).', SIMBA_TFA_TEXT_DOMAIN);?>
