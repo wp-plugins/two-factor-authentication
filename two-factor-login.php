@@ -204,6 +204,17 @@ class Simba_Two_Factor_Authentication {
 
 	public function tfaListUserRolesCheckboxes()
 	{
+
+		if (is_multisite()) {
+			// Not a real WP role; needs separate handling
+			$id = '_super_admin';
+			$name = __('Multisite Super Admin', SIMBA_TFA_TEXT_DOMAIN);
+			$setting = $this->get_option('tfa_'.$id);
+			$setting = $setting === false || $setting ? 1 : 0;
+			
+			print '<input type="checkbox" id="tfa_'.$id.'" name="tfa_'.$id.'" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$id.'">'.htmlspecialchars($name)."</label><br>\n";
+		}
+
 		global $wp_roles;
 		if (!isset($wp_roles)) $wp_roles = new WP_Roles();
 		

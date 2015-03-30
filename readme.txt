@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1
+Stable tag: 1.1.1
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -87,9 +87,10 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 == Changelog ==
 
-= 1.1 - 30/Mar/2015 =
+= 1.1.1 - 30/Mar/2015 =
 
 * Support added for multisite installs. (Plugin should be network-activated).
+* Support added for super-admin role (it's not a normal WP role internally, so needs custom handling)
 * Tested + compatible on upcoming WP 4.2 (tested on Beta 3)
 * Re-add option to require 2FA over XMLRPC (without specific code, XMLRPC clients don't/can't use 2FA - but requiring it effectively blocks hackers who want to crack your password by using this weakness in XMLRPC)
 

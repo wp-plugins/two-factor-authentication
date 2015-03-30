@@ -4,10 +4,10 @@ if (!defined('ABSPATH')) die('Access denied.');
 
 global $current_user, $simba_two_factor_authentication, $wpdb;
 
-if (is_multisite() && (!is_super_admin() || !is_object($wpdb) || !isset($wpdb->blogid) || 1 != $wpdb->blogid)) {
-	die("How did you get here?");
-	return;
-}
+// if (is_multisite() && (!is_super_admin() || !is_object($wpdb) || !isset($wpdb->blogid) || 1 != $wpdb->blogid)) {
+// 	die("How did you get here?");
+// 	return;
+// }
 
 if(!empty($_POST['tfa_enable_tfa']) && !empty($_GET['settings-updated']) == 'true') {
 	$tfa->changeEnableTFA($current_user->ID, $_POST['tfa_enable_tfa']);

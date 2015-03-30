@@ -301,9 +301,20 @@ class Simba_TFA  {
 	
 	public function isActivatedForUser($user_id)
 	{
-		$user = new WP_User($user_id);
 
 		global $simba_two_factor_authentication;
+
+		// Super admin is not a role (they are admins with an extra attribute); needs separate handling
+		if (is_multisite() && is_super_admin($user_id)) {
+			// This is always a final decision - we don't want it to drop through to the 'admin' role's setting
+			$role = '_super_admin';
+			$db_val = $simba_two_factor_authentication->get_option('tfa_'.$role);
+			$db_val = $db_val === false || $db_val ? 1 : 0; //Nothing saved or > 0 returns 1;
+			
+			return ($db_val) ? true : false;
+		}
+
+		$user = new WP_User($user_id);
 
 		foreach($user->roles as $role)
 		{
