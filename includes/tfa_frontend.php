@@ -6,6 +6,7 @@ class TFA_Frontend {
 	private $mother;
 
 	public function __construct($mother) {
+
 		$this->mother = $mother;
 		add_action('wp_ajax_tfa_frontend', array($this, 'ajax'));
 		add_shortcode('twofactor_user_settings', array($this, 'tfa_user_settings_front'));
@@ -90,59 +91,38 @@ class TFA_Frontend {
 		echo '<button style="margin-left: 4px;margin-bottom: 10px" class="simbatfa_settings_save button button-primary">'.__('Save Settings', SIMBA_TFA_TEXT_DOMAIN).'</button>';
 	}
 
-	/* Main Output function*/
-	public function tfa_user_settings_front($atts, $content = null){
+	private function get_tfa() {
+		if (empty($this->tfa)) $this->tfa = $this->mother->getTFA();
+	}
 
-		if (!is_user_logged_in()) return '';
-
+	public function settings_enable_or_disable_output() {
+		$this->save_settings_javascript_output();
 		global $current_user;
-		$tfa = $this->mother->getTFA();
-		
-		// We want to print to buffer, since the shortcode API wants the value returned, not echoed
-		ob_start();
-		
-		if(!$tfa->isActivatedForUser($current_user->ID)){
-			echo __('Two factor authentication is not available for your user level.', SIMBA_TFA_TEXT_DOMAIN);
-		} else {
 		?>
-		<div class="wrap" style="padding-bottom:10px">
-			
-			
-			<?php $this->mother->settings_intro_notices(); ?>
-			
 			<div class="simbatfa_frontend_settings_box tfa_settings_form">
 				<p><?php $this->mother->tfaListEnableRadios($current_user->ID, true); ?></p>
 				<button style="margin-left: 4px;margin-bottom: 10px" class="button button-primary simbatfa_settings_save"><?php echo __('Save Settings', SIMBA_TFA_TEXT_DOMAIN); ?></button>
 			</div>
+		<?php
+	}
 
-			<?php
+	public function save_settings_javascript_output() {
+		static $is_already_added;
+		if (!empty($is_already_added)) return;
+		$is_already_added = true;
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		wp_register_script( 'jquery-blockui', SIMBA_TFA_PLUGIN_URL . '/includes/jquery.blockUI' . $suffix . '.js', array('jquery' ), '2.60' );
+		wp_enqueue_script('jquery-blockui');
+		add_action('wp_footer', array($this, 'wp_footer'));
+	}
 
-			$var_array = $this->tfa_fetch_assort_vars();
-
-			$url = $var_array['url'];
-			$tfa_priv_key_64 = $var_array['tfa_priv_key_64'];
-			$tfa_priv_key = $var_array['tfa_priv_key'];
-			$emergency_str = $var_array['emergency_str'];
-			$algorithm_type = $var_array['algorithm_type'];
-
-			$this->mother->current_codes_box(false);
-
-			$this->mother->advanced_settings_box(array($this, 'save_settings_button'));
-
-?>
-			
-
-		<!-- End Wrap -->
-		</div>
-		
-		<!-- AJAX SCRIPT -->
-		<?php 
-			$nonce = wp_create_nonce("tfa_frontend_nonce");
+	public function wp_footer() {
 		?>
+
 		<script type="text/javascript">
 			var tfa_query_leaving = false;
 			
-			//Prevent Accidental leaving if there are unsaved settings
+			// Prevent accidental leaving if there are unsaved settings
 			window.onbeforeunload = function(e) {
 				if (tfa_query_leaving) {
 					var ask = "<?php echo esc_js(__('You have unsaved settings.', SIMBA_TFA_TEXT_DOMAIN)); ?>";
@@ -184,7 +164,7 @@ class TFA_Frontend {
 						action: "tfa_frontend",
 						subaction: "savesettings",
 						settings: formData,
-						nonce: "<?php echo $nonce;?>"
+						nonce: "<?php echo wp_create_nonce("tfa_frontend_nonce");?>"
 					}, function(response) {
 						try {
 							var resp = $.parseJSON(response);
@@ -209,9 +189,45 @@ class TFA_Frontend {
 				});
 			});
 		</script>
-<?php
+		<?php
+	}
+
+	/* Main Output function*/
+	public function tfa_user_settings_front($atts, $content = null){
+
+		if (!is_user_logged_in()) return '';
+
+		global $current_user;
+		
+		// We want to print to buffer, since the shortcode API wants the value returned, not echoed
+		ob_start();
+
+		$this->get_tfa();
+
+		if(!$this->tfa->isActivatedForUser($current_user->ID)){
+			echo __('Two factor authentication is not available for your user.', SIMBA_TFA_TEXT_DOMAIN);
+		} else {
+
+			?>
+
+			<div class="wrap" style="padding-bottom:10px">
+				
+				<?php $this->mother->settings_intro_notices(); ?>
+				
+				<?php $this->settings_enable_or_disable_output(); ?>
+
+				<?php $this->mother->current_codes_box(false); ?>
+
+				<?php $this->mother->advanced_settings_box(array($this, 'save_settings_button')); ?>
+				
+			</div>
+			
+			<?php $this->save_settings_javascript_output(); ?>
+
+			<?php
 		}
-		$output = ob_get_clean();
-		return $output;
+
+		return ob_get_clean();
+
 	}
 }

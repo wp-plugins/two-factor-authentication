@@ -5,7 +5,7 @@ Plugin URI:
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.1
+Version: 1.1.2
 License: GPLv2 or later
 */
 
@@ -15,8 +15,10 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.1';
+	public $version = '1.1.2';
 	private $php_required = '5.3';
+
+	private $frontend;
 
 	public function __construct() {
 
@@ -379,17 +381,56 @@ class Simba_Two_Factor_Authentication {
 		<?php
 	}
 
-	public function current_codes_box($admin = true) {
+	public function print_private_keys($admin, $type = 'full') {
 
-		global $current_user;
 		$tfa = $this->getTFA();
+		global $current_user;
 
+		$tfa_priv_key_64 = get_user_meta($current_user->ID, 'tfa_priv_key_64', true);
+		if(!$tfa_priv_key_64) $tfa_priv_key_64 = $tfa->addPrivateKey($current_user->ID);
+
+		$tfa_priv_key = trim($tfa->getPrivateKeyPlain($tfa_priv_key_64, $current_user->ID));
+
+		$tfa_priv_key_32 = Base32::encode($tfa_priv_key);
+
+		if ('full' == $type) {
+			?>
+			<strong><?php echo __('Private key (base 32 - used by Google Authenticator and Authy):', SIMBA_TFA_TEXT_DOMAIN);?></strong>
+			<?php echo htmlspecialchars($tfa_priv_key_32); ?><br>
+
+			<strong><?php echo __('Private key:', SIMBA_TFA_TEXT_DOMAIN);?></strong>
+			<?php echo htmlspecialchars($tfa_priv_key); ?><br>
+			<?php
+		} elseif ('plain' == $type) {
+			echo htmlspecialchars($tfa_priv_key);
+		} elseif ('base32' == $type) {
+			echo htmlspecialchars($tfa_priv_key_32);
+		} elseif ('base64' == $type) {
+			echo htmlspecialchars($tfa_priv_key_64);
+		}
+	}
+
+	public function current_otp_code($tfa) {
+		global $current_user;
+		$tfa_priv_key_64 = get_user_meta($current_user->ID, 'tfa_priv_key_64', true);
+		return '<span class="simba_current_otp">'.$tfa->generateOTP($current_user->ID, $tfa_priv_key_64).'</span>';
+	}
+
+	public function add_footer($admin) {
 		static $added_footer;
 		if (empty($added_footer)) {
 			$added_footer = true;
 			wp_enqueue_script('jquery');
 			add_action( $admin ? 'admin_footer' : 'wp_footer' , array($this, 'footer'));
 		}
+	}
+
+	public function current_codes_box($admin = true) {
+
+		global $current_user;
+		$tfa = $this->getTFA();
+
+		$this->add_footer($admin);
 
 		$url = preg_replace('/^https?:\/\//', '', site_url());
 		
@@ -417,7 +458,7 @@ class Simba_Two_Factor_Authentication {
 				<h3 style="padding: 10px 6px 0px; margin:4px 0 0; cursor: default;">
 					<span style="cursor: default;"><?php echo __('Current one-time password', SIMBA_TFA_TEXT_DOMAIN).' '.$this->reset_current_otp_link(); ?> </span>
 					<div class="inside">
-						<p><strong style="font-size: 3em;"><span  class="simba_current_otp"><?php print $tfa->generateOTP($current_user->ID, $tfa_priv_key_64); ?></span></strong></p>
+						<p><strong style="font-size: 3em;"><?php echo $this->current_otp_code($tfa); ?></strong></p>
 					</div>
 				</h3>
 			<?php } else {
@@ -458,13 +499,10 @@ class Simba_Two_Factor_Authentication {
 			<h3 class="normal" style="cursor: default"><?php _e('Private key - always to be kept secret', SIMBA_TFA_TEXT_DOMAIN); ?></h3>
 
 				<p>
-					<strong><?php echo __('Private key (base 32 - used by Google Authenticator and Authy):', SIMBA_TFA_TEXT_DOMAIN);?></strong>
-					<?php echo htmlspecialchars($tfa_priv_key_32); ?><br>
-
-					<strong><?php echo __('Private key:', SIMBA_TFA_TEXT_DOMAIN);?></strong>
-					<?php echo htmlspecialchars($tfa_priv_key); ?><br>
-
-					<?php echo $this->reset_link($admin); ?>
+					<?php
+						$this->print_private_keys($admin);
+						echo $this->reset_link($admin);
+					?>
 				</p>
 			</div>
 
@@ -554,12 +592,12 @@ class Simba_Two_Factor_Authentication {
 		<div class="error">
 		<h3><?php _e('Two Factor Authentication re-sync needed', SIMBA_TFA_TEXT_DOMAIN);?></h3>
 		<p>
-			You need to resync your mobile app for <strong>Two Factor Authentication</strong> since the OTP you last used is many steps ahead 
-			of the server.
+			<?php _e('You need to resync your device for Two Factor Authentication since the OTP you last used is many steps ahead 
+			of the server.', SIMBA_TFA_TEXT_DOMAIN); ?>
 			<br>
 			<?php _e('Please re-sync or you might not be able to log in if you generate more OTPs without logging in.', SIMBA_TFA_TEXT_DOMAIN);?>
 			<br><br>
-			<a href="admin.php?page=two-factor-auth-user&warning_button_clicked=1" class="button">Click here and re-scan the QR-Code</a>
+			<a href="admin.php?page=two-factor-auth-user&warning_button_clicked=1" class="button"><?php _e('Click here and re-scan the QR-Code', SIMBA_TFA_TEXT_DOMAIN);?></a>
 		</p>
 	</div>
 		
@@ -572,7 +610,10 @@ class Simba_Two_Factor_Authentication {
 		global $current_user;
 		$tfa = $this->getTFA();
 		
-		$ret = '<img src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://'.$algorithm_type.'/'.$url.':%2520'.$current_user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($current_user->ID).'">';
+		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':%2520'.$current_user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($current_user->ID);
+
+		$ret = '<img src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='.$encode.'">';
+
 		return $ret;
 	}
 
@@ -587,8 +628,7 @@ class Simba_Two_Factor_Authentication {
 		<?php
 	}
 
-	public function plugins_loaded()
-	{
+	public function plugins_loaded() {
 		load_plugin_textdomain(
 			SIMBA_TFA_TEXT_DOMAIN,
 			false,
@@ -596,12 +636,17 @@ class Simba_Two_Factor_Authentication {
 		);
 
 		if ((!is_admin() || (defined('DOING_AJAX') && DOING_AJAX)) && is_user_logged_in() && file_exists(SIMBA_TFA_PLUGIN_DIR.'/includes/tfa_frontend.php')) {
-			if (!class_exists('TFA_Frontend')) require_once(SIMBA_TFA_PLUGIN_DIR.'/includes/tfa_frontend.php');
-			new TFA_Frontend($this);
+			$this->load_frontend();
 		} else {
 			add_shortcode('twofactor_user_settings', array($this, 'shortcode_when_not_logged_in'));
 		}
 
+	}
+
+	public function load_frontend() {
+		if (!class_exists('TFA_Frontend')) require_once(SIMBA_TFA_PLUGIN_DIR.'/includes/tfa_frontend.php');
+		if (empty($this->frontend)) $this->frontend = new TFA_Frontend($this);
+		return $this->frontend;
 	}
 
 	public function shortcode_when_not_logged_in() {
@@ -616,7 +661,8 @@ class Simba_Two_Factor_Authentication {
 				'click_to_enter_otp' => __("Enter One Time Password (if you have one)", SIMBA_TFA_TEXT_DOMAIN),
 				'enter_username_first' => __('You have to enter a username first.', SIMBA_TFA_TEXT_DOMAIN),
 				'otp' => __("One Time Password", SIMBA_TFA_TEXT_DOMAIN),
-				'nonce' => wp_create_nonce("simba_tfa_loginform_nonce")
+				'nonce' => wp_create_nonce("simba_tfa_loginform_nonce"),
+				'otp_login_help' => __('(check your OTP app to get this password)', SIMBA_TFA_TEXT_DOMAIN),
 			));
 	}
 

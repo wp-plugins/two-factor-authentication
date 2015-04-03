@@ -302,6 +302,8 @@ class Simba_TFA  {
 	public function isActivatedForUser($user_id)
 	{
 
+		if (empty($user_id)) return false;
+
 		global $simba_two_factor_authentication;
 
 		// Super admin is not a role (they are admins with an extra attribute); needs separate handling
