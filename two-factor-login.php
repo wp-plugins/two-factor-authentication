@@ -623,7 +623,7 @@ class Simba_Two_Factor_Authentication {
 			<?php echo __('These are your personal settings.', SIMBA_TFA_TEXT_DOMAIN).' '.__('Nothing you change here will have any effect on other users.', SIMBA_TFA_TEXT_DOMAIN); ?>
 		</p>
 		<p class="simba_tfa_verify_tfa_notice simba_tfa_intro_notice"><strong>
-			<?php _e('If you activate two-factor authentication, then verify with the One Time Password shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong>
+			<?php _e('If you activate two-factor authentication, then verify with the One Time Password shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong> <?php if (current_user_can('manage_options')) { ?><a href="https://updraftplus.com/understanding-wordpress-installs-plugins/"><?php _e('You should also bookmark this article about how to de-activate a plugin when you cannot log in.', SIMBA_TFA_TEXT_DOMAIN);?></a><?php } ?>
 		</p>
 		<?php
 	}
