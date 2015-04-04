@@ -9,14 +9,19 @@ global $current_user, $simba_two_factor_authentication, $wpdb;
 // 	return;
 // }
 
-if(!empty($_POST['tfa_enable_tfa']) && !empty($_GET['settings-updated']) == 'true') {
+if(!empty($_POST['tfa_enable_tfa']) && !empty($_GET['settings-updated'])) {
 	$tfa->changeEnableTFA($current_user->ID, $_POST['tfa_enable_tfa']);
-} elseif (!empty($_POST['tfa_algorithm_type']) && !empty($_GET['settings-updated']) == 'true') {
+	$tfa_settings_saved = true;
+} elseif (!empty($_POST['tfa_algorithm_type']) && !empty($_GET['settings-updated'])) {
 	$old_algorithm = $tfa->getUserAlgorithm($current_user->ID);
 	
-	if($old_algorithm != $_POST['tfa_algorithm_type'])
+	if($old_algorithm != $_POST['tfa_algorithm_type']) {
 		$tfa->changeUserAlgorithmTo($current_user->ID, $_POST['tfa_algorithm_type']);
+	}
+
+	$tfa_settings_saved = true;
 }
+
 if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 1) {
 	delete_user_meta($current_user->ID, 'tfa_hotp_off_sync');
 }
@@ -35,7 +40,16 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 	<?php screen_icon('tfa-plugin'); ?>
 	<h2><?php echo apply_filters('tfa_white_label', 'Two Factor Authentication'); ?> <?php _e('Settings', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 
-	<?php $simba_two_factor_authentication->settings_intro_notices(); ?>
+	<?php
+
+		if (isset($tfa_settings_saved)) {
+error_log("osjdgbsi");
+			echo '<div class="updated notice is-dismissible">'."<p>".__('Settings saved.', SIMBA_TFA_TEXT_DOMAIN)."</p></div>";
+		}
+
+		$simba_two_factor_authentication->settings_intro_notices();
+
+	?>
 	
 	<!-- New Radios to enable/disable tfa -->
 	<form method="post" action="<?php print esc_attr(add_query_arg('settings-updated', 'true', $_SERVER['REQUEST_URI'])); ?>">

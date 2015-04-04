@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -120,6 +120,10 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 == Changelog ==
 
+= 1.1.3 - 04/Apr/2015 =
+
+* TWEAK: Provide "Settings saved" notice when user's settings are saved in the admin area (otherwise the user may be wondering).
+
 = 1.1.2 - 03/Apr/2015 =
 
 * FIX: Include blockUI JavaScript (the lack of which caused front-end options not to save if you did not have WooCommerce or another plugin that already used blockUI installed)
@@ -145,4 +149,4 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 
 == Upgrade Notice ==
-* 1.1.2 : Make WC login form handling more elegant. Fix for non-saving options on some front-ends.
+* 1.1.3 : Provide "Settings saved" notice when user's settings are saved in the admin area (otherwise the user may be wondering).
