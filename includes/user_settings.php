@@ -43,8 +43,7 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 	<?php
 
 		if (isset($tfa_settings_saved)) {
-error_log("osjdgbsi");
-			echo '<div class="updated notice is-dismissible">'."<p>".__('Settings saved.', SIMBA_TFA_TEXT_DOMAIN)."</p></div>";
+			echo '<div class="updated notice is-dismissible">'."<p><strong>".__('Settings saved.', SIMBA_TFA_TEXT_DOMAIN)."</strong></p></div>";
 		}
 
 		$simba_two_factor_authentication->settings_intro_notices();
