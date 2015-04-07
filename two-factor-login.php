@@ -680,7 +680,7 @@ class Simba_Two_Factor_Authentication {
 
 	// WooCommerce login form
 	public function woocommerce_before_customer_login_form() {
-			wp_enqueue_script( 'tfa-wc-ajax-request', SIMBA_TFA_PLUGIN_URL.'/includes/wooextend.js', array('jquery'));
+			wp_enqueue_script( 'tfa-wc-ajax-request', SIMBA_TFA_PLUGIN_URL.'/includes/wooextend.js', array('jquery'), $this->version);
 			wp_localize_script( 'tfa-wc-ajax-request', 'simbatfa_wc_settings', array(
 				'ajaxurl' => admin_url('admin-ajax.php'),
 				'click_to_enter_otp' => __("Enter One Time Password (if you have one)", SIMBA_TFA_TEXT_DOMAIN),
