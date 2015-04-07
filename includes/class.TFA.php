@@ -128,19 +128,16 @@ class Simba_TFA  {
 			
 			if($is_activated_for_user && $is_activated_by_user)
 			{
-				$delivery_type = get_user_meta($user->ID, 'simbatfa_delivery_type', true);
+// 				$delivery_type = get_user_meta($user->ID, 'simbatfa_delivery_type', true);
 				
-				//Default is email
-				if(!$delivery_type)
-				{
-					//No private key yet, generate one.
-					//This is safe to do since the code is emailed to the user.
-					//Not safe to do if the user has disabled email.
-					if(!$tfa_priv_key)
-						$tfa_priv_key = $this->addPrivateKey($user->ID);
-					
-					$code = $this->generateOTP($user->ID, $tfa_priv_key);
-				}
+				//No private key yet, generate one.
+				//This is safe to do since the code is emailed to the user.
+				//Not safe to do if the user has disabled email.
+				if(!$tfa_priv_key)
+					$tfa_priv_key = $this->addPrivateKey($user->ID);
+				
+				$code = $this->generateOTP($user->ID, $tfa_priv_key);
+
 				return true;//Set to true
 			}
 			return false;
@@ -283,7 +280,7 @@ class Simba_TFA  {
 	//Added
 	public function changeEnableTFA($user_id, $setting)
 	{
-		$setting = ($setting === 'true');
+		$setting = ($setting === 'true') ? 1 : 0;
 		
 		update_user_meta($user_id, 'tfa_enable_tfa', $setting);
 	}
@@ -334,8 +331,8 @@ class Simba_TFA  {
 	//Added
 	public function isActivatedByUser($user_id){
 		$enabled = get_user_meta($user_id, 'tfa_enable_tfa', true);
-		$enabled = $enabled === '' ? false : $enabled; //If there is an empty string returned - has not been set
-		
+		$enabled = empty($enabled) ? false : true;
+
 		return $enabled;
 	}
 

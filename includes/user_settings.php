@@ -38,7 +38,7 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 <div class="wrap">
 
 	<?php screen_icon('tfa-plugin'); ?>
-	<h2><?php echo apply_filters('tfa_white_label', 'Two Factor Authentication'); ?> <?php _e('Settings', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
+	<h2><?php echo __('Two Factor Authentication', SIMBA_TFA_TEXT_DOMAIN).' '.__('Settings', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 
 	<?php
 

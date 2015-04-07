@@ -1,5 +1,7 @@
 jQuery(document).ready(function($) {
 
+	var submit_can_proceed = false;
+	
 	// See if WooCommerce login form is present
 	if($('.woocommerce form.login').size() > 0) {
 		var tfa_wc_form = $('.woocommerce form.login').first();
@@ -51,6 +53,9 @@ jQuery(document).ready(function($) {
 	}
 	
 	$(tfa_wc_form).on('submit', function(e) {
+		
+		if (submit_can_proceed) { return true; }
+		
 		e.preventDefault();
 		//Check so a username is entered.
 		if(tfa_wc_user_field.val().length < 1)
@@ -70,16 +75,17 @@ jQuery(document).ready(function($) {
 				},
 				dataType: 'json',
 				success: function(response) {
+					submit_can_proceed = true;
 					if (response.status == true) {
 						tfaShowOTPField();
 					} else {
-						$(tfa_wc_form).submit();
+						$(tfa_wc_form).find('input[type="submit"]:first').click();
 					}
 				}
 			}
 		);
 		
-		$(tfa_wc_form).off();
+// 		$(tfa_wc_form).off();
 		
 	});
 	

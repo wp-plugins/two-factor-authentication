@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Two Factor Authentication
-Plugin URI: 
+Plugin URI: https://www.simbahosting.co.uk/plugins/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.3
+Version: 1.1.5
 License: GPLv2 or later
 */
 
@@ -15,14 +15,12 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.3';
+	public $version = '1.1.5';
 	private $php_required = '5.3';
 
 	private $frontend;
 
 	public function __construct() {
-
-		if (file_exists(SIMBA_TFA_PLUGIN_DIR.'/premium.php')) include_once(SIMBA_TFA_PLUGIN_DIR.'/premium.php');
 
 		if (version_compare(PHP_VERSION, $this->php_required, '<' )) {
 			add_action('all_admin_notices', array($this, 'admin_notice_insufficient_php'));
@@ -35,6 +33,8 @@ class Simba_Two_Factor_Authentication {
 		}
 
 		if (!empty($abort)) return;
+
+		if (file_exists(SIMBA_TFA_PLUGIN_DIR.'/premium.php')) include_once(SIMBA_TFA_PLUGIN_DIR.'/premium.php');
 
 		add_action('wp_ajax_nopriv_simbatfa-init-otp', array($this, 'tfaInitLogin'));
 
@@ -68,8 +68,11 @@ class Simba_Two_Factor_Authentication {
 		add_action('admin_notices', array($this, 'tfaShowHOTPOffSyncMessage'));
 		add_action('login_enqueue_scripts', array($this, 'login_enqueue_scripts'));
 
-		
-		add_filter('authenticate', array($this, 'tfaVerifyCodeAndUser'), 99999999999, 3);
+		if (!defined('TWO_FACTOR_DISABLE') || !TWO_FACTOR_DISABLE) {
+			add_filter('authenticate', array($this, 'tfaVerifyCodeAndUser'), 99999999999, 3);
+		}
+
+		if (file_exists(SIMBA_TFA_PLUGIN_DIR.'/updater/updater.php')) include_once(SIMBA_TFA_PLUGIN_DIR.'/updater/updater.php');
 	}
 
 	public function admin_notice_insufficient_php() {
@@ -84,8 +87,7 @@ class Simba_Two_Factor_Authentication {
 		echo '<div class="updraftmessage '.$class.'">'."<p>$message</p></div>";
 	}
 
-	public function getTFA()
-	{
+	public function getTFA() {
 		if (!class_exists('HOTP')) require_once(SIMBA_TFA_PLUGIN_DIR.'/hotp-php-master/hotp.php');
 		if (!class_exists('Base32')) require_once(SIMBA_TFA_PLUGIN_DIR.'/Base32/Base32.php');
 		if (!class_exists('Simba_TFA')) require_once(SIMBA_TFA_PLUGIN_DIR.'/includes/class.TFA.php');
@@ -120,8 +122,12 @@ class Simba_Two_Factor_Authentication {
 
 		if (empty($_POST['user']) || empty($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'simba_tfa_loginform_nonce')) die('Security check.');
 
-		$tfa = $this->getTFA();
-		$res = $tfa->preAuth(array('log' => $_POST['user']));
+		if (defined('TWO_FACTOR_DISABLE') && TWO_FACTOR_DISABLE) {
+			$res = false;
+		} else {
+			$tfa = $this->getTFA();
+			$res = $tfa->preAuth(array('log' => $_POST['user']));
+		}
 
 		echo json_encode(array('status' => $res));
 		exit;
@@ -129,8 +135,7 @@ class Simba_Two_Factor_Authentication {
 	
 
 	// Here's where the login action happens
-	public function tfaVerifyCodeAndUser($user, $username, $password)
-	{
+	public function tfaVerifyCodeAndUser($user, $username, $password) {
 
 		$tfa = $this->getTFA();
 		
@@ -142,11 +147,9 @@ class Simba_Two_Factor_Authentication {
 		
 		$code_ok = $tfa->authUserFromLogin($params);
 
-		if(!$code_ok)
-			return new WP_Error('authentication_failed', '<strong>'.__('Error:', SIMBA_TFA_TEXT_DOMAIN).'</strong> '.__('The one-time password (TFA code) you entered was incorrect.', SIMBA_TFA_TEXT_DOMAIN));
+		if (!$code_ok) return new WP_Error('authentication_failed', '<strong>'.__('Error:', SIMBA_TFA_TEXT_DOMAIN).'</strong> '.__('The one-time password (TFA code) you entered was incorrect.', SIMBA_TFA_TEXT_DOMAIN));
 		
-		if($user)
-			return $user;
+		if ($user) return $user;
 			
 		return wp_authenticate_username_password(null, $username, $password);
 	}
@@ -177,8 +180,8 @@ class Simba_Two_Factor_Authentication {
 		$tfa_enabled_label = ($long_label) ? __('Enable two-factor authentication', SIMBA_TFA_TEXT_DOMAIN) : __('Enabled', SIMBA_TFA_TEXT_DOMAIN);
 		$tfa_disabled_label = ($long_label) ? __('Disable two-factor authentication', SIMBA_TFA_TEXT_DOMAIN) : __('Disabled', SIMBA_TFA_TEXT_DOMAIN);
 
-		print '<input type="radio" id="tfa_enable_tfa_true" name="tfa_enable_tfa" value="true" '.($setting == true ? 'checked="checked"' :'').'> <label for="tfa_enable_tfa_true">'.apply_filters('simbatfa_radiolabel_enabled', $tfa_enabled_label, $long_label).'</label> <br>';
-		print '<input type="radio" id="tfa_enable_tfa_false" name="tfa_enable_tfa" value="false" '.($setting == false ? 'checked="checked"' :'').'> <label for="tfa_enable_tfa_false">'.apply_filters('simbatfa_radiolabel_disabled', $tfa_disabled_label, $long_label).'</label> <br>';
+		print '<input type="radio" class="tfa_enable_radio" id="tfa_enable_tfa_true" name="tfa_enable_tfa" value="true" '.($setting == true ? 'checked="checked"' :'').'> <label class="tfa_enable_radio_label" for="tfa_enable_tfa_true">'.apply_filters('simbatfa_radiolabel_enabled', $tfa_enabled_label, $long_label).'</label> <br>';
+		print '<input type="radio" class="tfa_enable_radio" id="tfa_enable_tfa_false" name="tfa_enable_tfa" value="false" '.($setting == false ? 'checked="checked"' :'').'> <label class="tfa_enable_radio_label" for="tfa_enable_tfa_false">'.apply_filters('simbatfa_radiolabel_disabled', $tfa_disabled_label, $long_label).'</label> <br>';
 	}
 		
 
@@ -381,15 +384,17 @@ class Simba_Two_Factor_Authentication {
 		<?php
 	}
 
-	public function print_private_keys($admin, $type = 'full') {
+	public function print_private_keys($admin, $type = 'full', $user_id = false) {
 
 		$tfa = $this->getTFA();
 		global $current_user;
 
-		$tfa_priv_key_64 = get_user_meta($current_user->ID, 'tfa_priv_key_64', true);
-		if(!$tfa_priv_key_64) $tfa_priv_key_64 = $tfa->addPrivateKey($current_user->ID);
+		if ($user_id == false) $user_id = $current_user->ID;
 
-		$tfa_priv_key = trim($tfa->getPrivateKeyPlain($tfa_priv_key_64, $current_user->ID));
+		$tfa_priv_key_64 = get_user_meta($user_id, 'tfa_priv_key_64', true);
+		if(!$tfa_priv_key_64) $tfa_priv_key_64 = $tfa->addPrivateKey($user_id);
+
+		$tfa_priv_key = trim($tfa->getPrivateKeyPlain($tfa_priv_key_64, $user_id));
 
 		$tfa_priv_key_32 = Base32::encode($tfa_priv_key);
 
@@ -410,10 +415,11 @@ class Simba_Two_Factor_Authentication {
 		}
 	}
 
-	public function current_otp_code($tfa) {
+	public function current_otp_code($tfa, $user_id = false) {
 		global $current_user;
-		$tfa_priv_key_64 = get_user_meta($current_user->ID, 'tfa_priv_key_64', true);
-		return '<span class="simba_current_otp">'.$tfa->generateOTP($current_user->ID, $tfa_priv_key_64).'</span>';
+		if (false == $user_id) $user_id = $current_user->ID;
+		$tfa_priv_key_64 = get_user_meta($user_id, 'tfa_priv_key_64', true);
+		return '<span class="simba_current_otp">'.$tfa->generateOTP($user_id, $tfa_priv_key_64).'</span>';
 	}
 
 	public function add_footer($admin) {
@@ -425,28 +431,38 @@ class Simba_Two_Factor_Authentication {
 		}
 	}
 
-	public function current_codes_box($admin = true) {
+	public function current_codes_box($admin = true, $user_id = false) {
 
 		global $current_user;
+
+		if (false == $user_id) {
+			$user_id = $current_user->ID;
+		}
+
 		$tfa = $this->getTFA();
 
 		$this->add_footer($admin);
 
 		$url = preg_replace('/^https?:\/\//', '', site_url());
 		
-		$tfa_priv_key_64 = get_user_meta($current_user->ID, 'tfa_priv_key_64', true);
+		$tfa_priv_key_64 = get_user_meta($user_id, 'tfa_priv_key_64', true);
 		
-		if(!$tfa_priv_key_64) $tfa_priv_key_64 = $tfa->addPrivateKey($current_user->ID);
+		if(!$tfa_priv_key_64) $tfa_priv_key_64 = $tfa->addPrivateKey($user_id);
 
-		$tfa_priv_key = trim($tfa->getPrivateKeyPlain($tfa_priv_key_64, $current_user->ID));
+		$tfa_priv_key = trim($tfa->getPrivateKeyPlain($tfa_priv_key_64, $user_id));
 
 		$tfa_priv_key_32 = Base32::encode($tfa_priv_key);
 
-		$algorithm_type = $tfa->getUserAlgorithm($current_user->ID);
-
+		$algorithm_type = $tfa->getUserAlgorithm($user_id);
 
 		if ($admin) {
-			echo '<h2>'.__('Current codes', SIMBA_TFA_TEXT_DOMAIN).'</h2>';
+			if ($current_user->ID == $user_id) {
+				echo '<h2>'.__('Current codes', SIMBA_TFA_TEXT_DOMAIN).'</h2>';
+			} else {
+				$user = get_user_by('id', $user_id);
+				$user_descrip = htmlspecialchars($user->user_nicename.' - '.$user->user_email);
+				echo '<h2>'.sprintf(__('Current codes (login: %s)', SIMBA_TFA_TEXT_DOMAIN), $user_descrip).'</h2>';
+			}
 		} else {
 // 			echo '<h2>'.__('Current one-time password', SIMBA_TFA_TEXT_DOMAIN).' '.$this->reset_current_otp_link().'</h2>';
 		}
@@ -456,9 +472,11 @@ class Simba_Two_Factor_Authentication {
 
 			<?php if ($admin) { ?>
 				<h3 style="padding: 10px 6px 0px; margin:4px 0 0; cursor: default;">
-					<span style="cursor: default;"><?php echo __('Current one-time password', SIMBA_TFA_TEXT_DOMAIN).' '.$this->reset_current_otp_link(); ?> </span>
+					<span style="cursor: default;"><?php echo __('Current one-time password', SIMBA_TFA_TEXT_DOMAIN).' ';
+					if ($current_user->ID == $user_id) { echo $this->reset_current_otp_link(); } ?>
+					</span>
 					<div class="inside">
-						<p><strong style="font-size: 3em;"><?php echo $this->current_otp_code($tfa); ?></strong></p>
+						<p><strong style="font-size: 3em;"><?php echo $this->current_otp_code($tfa, $user_id); ?></strong></p>
 					</div>
 				</h3>
 			<?php } else {
@@ -469,7 +487,7 @@ class Simba_Two_Factor_Authentication {
 						<?php echo __('Current one-time password', SIMBA_TFA_TEXT_DOMAIN).' '.$this->reset_current_otp_link(); ?>
 					</strong> :
 
-					<span class="simba_current_otp"><?php print $tfa->generateOTP($current_user->ID, $tfa_priv_key_64); ?></span>
+					<span class="simba_current_otp"><?php print $tfa->generateOTP($user_id, $tfa_priv_key_64); ?></span>
 			
 					</p>
 				</div>
@@ -500,14 +518,14 @@ class Simba_Two_Factor_Authentication {
 
 				<p>
 					<?php
-						$this->print_private_keys($admin);
-						echo $this->reset_link($admin);
+						$this->print_private_keys($admin, 'full', $user_id);
+						if ($current_user->ID == $user_id) { echo $this->reset_link($admin);}
 					?>
 				</p>
 			</div>
 
 			<?php
-				if ($admin || apply_filters('simba_tfa_emergency_codes_user_settings', false) !== false) {
+				if ($admin || apply_filters('simba_tfa_emergency_codes_user_settings', false, $user_id) !== false) {
 			?>
 			<div class="inside">
 
@@ -515,8 +533,8 @@ class Simba_Two_Factor_Authentication {
 
 				<p>
 					<?php
-						$default_text = __('One-time emergency codes are a feature of the Premium version of this plugin.', SIMBA_TFA_TEXT_DOMAIN);
-						echo apply_filters('simba_tfa_emergency_codes_user_settings', $default_text);
+						$default_text = '<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/">'.__('One-time emergency codes are a feature of the Premium version of this plugin.', SIMBA_TFA_TEXT_DOMAIN).'</a>';
+						echo apply_filters('simba_tfa_emergency_codes_user_settings', $default_text, $user_id);
 					?>
 				</p>
 
@@ -606,11 +624,18 @@ class Simba_Two_Factor_Authentication {
 	}
 
 	// QR code image
-	public function tfa_qr_code_url($algorithm_type, $url, $tfa_priv_key){
+	public function tfa_qr_code_url($algorithm_type, $url, $tfa_priv_key, $user_id = false){
 		global $current_user;
+		
+		if ($user_id == false) {
+			$user = $current_user;
+		} else {
+			$user = get_user_by('id', $user_id);
+		}
+		
 		$tfa = $this->getTFA();
 		
-		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':%2520'.$current_user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($current_user->ID);
+		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':%2520'.$user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($user->ID);
 
 		$ret = '<img src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='.$encode.'">';
 

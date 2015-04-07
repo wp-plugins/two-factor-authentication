@@ -11,18 +11,29 @@ $tfa->setUserHMACTypes();
 
 ?><div class="wrap">
 
-	<div style="max-width: 800px;">
+	<div>
 
 	<?php screen_icon(); ?>
 	<h2><?php echo sprintf(__('Two Factor Authentication (Version: %s) - Admin Settings', SIMBA_TFA_TEXT_DOMAIN), $simba_two_factor_authentication->version); ?> </h2>
 
-	<a href="http://updraftplus.com">UpdraftPlus - <?php _e('WordPress Backups', SIMBA_TFA_TEXT_DOMAIN); ?></a> | 
-		<a href="https://profiles.wordpress.org/davidanderson#content-plugins"><?php _e('More Free Plugins', SIMBA_TFA_TEXT_DOMAIN);?></a>  | 
-		<a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('Premium Plugins', SIMBA_TFA_TEXT_DOMAIN);?></a>  | 
+	<?php
+		if (!class_exists('Simba_Two_Factor_Authentication_Premium')) {
+			?>
+			<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/"><?php _e("Premium version", SIMBA_TFA_TEXT_DOMAIN);?></a> | 
+			<?php
+		}
+	?>
+	<a href="<?php echo apply_filters('simba_tfa_support_url', 'https://wordpress.org/support/plugin/two-factor-authentication/');?>"><?php _e("Support", SIMBA_TFA_TEXT_DOMAIN);?></a> | 
+	<a href="https://profiles.wordpress.org/davidanderson#content-plugins"><?php _e('More free plugins', SIMBA_TFA_TEXT_DOMAIN);?></a> | 
+	<a href="http://updraftplus.com">UpdraftPlus - <?php _e('WordPress backups', SIMBA_TFA_TEXT_DOMAIN); ?></a> | 
+		<a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More premium plugins', SIMBA_TFA_TEXT_DOMAIN);?></a>  | 
 		<a href="https://twitter.com/updraftplus"><?php _e('Twitter', SIMBA_TFA_TEXT_DOMAIN);?></a> | 
-		<a href="https://wordpress.org/support/plugin/two-factor-authentication/"><?php _e("Support", SIMBA_TFA_TEXT_DOMAIN);?></a> | 
+		
 		<a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage", SIMBA_TFA_TEXT_DOMAIN);?></a> 
 		<br>
+
+	</div>
+	<div style="max-width:800px;">
 
 	<?php
 		if (is_multisite()) {
@@ -98,14 +109,20 @@ $tfa->setUserHMACTypes();
 	</form>
 	<hr>
 	<br><br>
-	<h2><?php _e('Change user settings', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
+	<h2><?php _e("Users' settings", SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 	<p>
-		<?php _e("If some of your users lose their two-factor device and don't have access to their emergency codes, you can reset their settings by switching to their account.", SIMBA_TFA_TEXT_DOMAIN); ?>
 
-		<a href="https://wordpress.org/plugins/user-switching/"><?php _e('This plugin provides one way to do that.', SIMBA_TFA_TEXT_DOMAIN); ?></a>
+		<?php
+			if (!class_exists('Simba_Two_Factor_Authentication_Premium')) { ?>
+
+				<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/"><?php _e("The Premium version of this plugin allows you to see and reset the TFA settings of other users.", SIMBA_TFA_TEXT_DOMAIN); ?></a>
+
+				<a href="https://wordpress.org/plugins/user-switching/"><?php _e('Another way to do that is by using a user-switching plugin like this one.', SIMBA_TFA_TEXT_DOMAIN); ?></a>
+
+			<?php } ?>
 		
-		<br>
-	<p>
+		<?php do_action('simba_tfa_users_settings'); ?>
+
 		<?php
 		
 		// Disabled
@@ -143,8 +160,23 @@ $tfa->setUserHMACTypes();
 		}
 
 		?>
+	<hr>
+	<?php if (!class_exists('Simba_Two_Factor_Authentication_Premium')) { ?>
+	<h2><?php _e('Premium version', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
+	<p>
+		<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/"><?php _e("If you want to say 'thank you' or help this plugin's development, or get extra features, then please take a look at the premium version of this plugin.", SIMBA_TFA_TEXT_DOMAIN); ?></a> <?php _e('It comes with these extra features:', SIMBA_TFA_TEXT_DOMAIN);?><br>
+	</p>
+	<p>
+		<ul style="list-style: disc inside;">
+			<li><strong><?php _e('Emergency codes', SIMBA_TFA_TEXT_DOMAIN);?></strong> - <?php _e('provide your users with one-time codes to use in case they lose their device.', SIMBA_TFA_TEXT_DOMAIN);?></li>
+			<li><strong><?php _e('Manage all users centrally', SIMBA_TFA_TEXT_DOMAIN);?></strong> - <?php _e('enable, disable or see TFA codes for all your users from one central location.', SIMBA_TFA_TEXT_DOMAIN);?></li>
+			<li><strong><?php _e('More shortcodes', SIMBA_TFA_TEXT_DOMAIN);?></strong> - <?php _e('flexible shortcodes allowing you to design your front-end settings page for your users exactly as you wish.', SIMBA_TFA_TEXT_DOMAIN);?></li>
+			<li><strong><?php _e('Personal support', SIMBA_TFA_TEXT_DOMAIN);?></strong> - <?php _e('access to our personal support desk for 12 months.', SIMBA_TFA_TEXT_DOMAIN);?></li>
+		</ul>
 	</p>
 	<hr>
+	<?php } ?>
+
 	<h2><?php _e('Translations', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 	<p>
 		<?php _e("If you translate this plugin, please send the translations .po-file to us so we can include it in future releases - paste a link in the plugin's support forum.", SIMBA_TFA_TEXT_DOMAIN); ?>

@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.3
+Stable tag: 1.1.5
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -17,20 +17,20 @@ Secure WordPress login with this two factor authentication (TFA) plugin. Users f
 
 Are you completely new to TFA? <a href="https://wordpress.org/plugins/two-factor-authentication/faq/">If so, please see our FAQ</a>.
 
-Features (see the "Screenshots" for more information):
+Features (please see the "Screenshots" for more information):
 
-* Supports standard TOTP + HOTP protocols (and so supports Google Authenticator, Authy, and many others)
-* Displays graphical QR codes for easy scanning into apps on your phone
+* Supports standard TOTP + HOTP protocols (and so supports Google Authenticator, Authy, and many others).
+* Displays graphical QR codes for easy scanning into apps on your phone/tablet
 * TFA can be made available on a per-role basis (e.g. available for admins, but not for subscribers)
 * TFA can be turned on or off by each user
-* Supports front-end editing of settings, via [twofactor_user_settings] shortcode (i.e. users don't need access to the WP dashboard).
+* Supports front-end editing of settings, via [twofactor_user_settings] shortcode (i.e. users don't need access to the WP dashboard). (The <a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/">Premium version</a> allows custom designing of any layout you wish).
 * Includes support for the WooCommerce login form
 * Does not mention or request second factor until the user has been identified as one with TFA enabled (i.e. nothing is shown to users who do not have it enabled)
 * WP Multisite compatible (plugin should be network activated)
 * Simplified user interface and code base for ease of use and performance
 * Added a number of extra security checks to the original forked code
-* Removed the "email" authentication method (email is not truly two-factor, unless you have two separate email accounts for which neither's "lost login" link takes you to the other).
-* Emergency codes (Premium version, release imminent)
+* Emergency codes for when you lose your phone/tablet (<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/">Premium version</a>)
+* Administrators can access other users' codes, and turn them on/off when needed (<a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/">Premium version</a>)
 
 = Why? =
 
@@ -40,13 +40,13 @@ Read this! http://www.wired.com/2012/08/apple-amazon-mat-honan-hacking/
 
 This plugin uses the industry standard algorithm [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm) or [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm) for creating One Time Passwords. These are used by Google Authenticator, Authy, and many other OTP applications that you can deploy on your phone etc.
 
-A TOTP code is valid for a certain time and after that a new code has to be entered.
+A TOTP code is valid for a certain time. Whatever program you use (i.e. Google Authenticator, etc.) will show a different password every so often.
 
 = Plugin Notes =
 
 To display graphical QR codes, this plugin will tell the browser to display images from https://chart.googleapis.com.
 
-This plugin is a friendly fork and enhancement of Oscar Hane's https://wordpress.org/plugins/two-factor-auth/
+This plugin began life as a friendly fork and enhancement of Oscar Hane's https://wordpress.org/plugins/two-factor-auth/
 
 == Installation ==
 
@@ -85,6 +85,14 @@ This depends on your particular make of phone, and your preferences. Google have
 
 Many and various devices and programs can generate the codes. One option is an add-on for your web browser; for example, <a href="https://chrome.google.com/webstore/search/authenticator">here are some apps and add-ons for Google Chrome</a>. Wikipedia <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm#Client_implementations">lists various programs for different computers</a>.
 
+= Oops, I lost my device that has passcodes. What to do? =
+
+Add this to your wp-config.php file, using FTP or the file manager in your hosting control panel:
+define('TWO_FACTOR_DISABLE', true);
+Add it next to where any other line beginning with "define" is.
+
+Alternatively, if you have FTP or cPanel access to your web hosting space, you can de-activate the plugin; see this article: https://updraftplus.com/understanding-wordpress-installs-plugins/
+
 = What are HOTP and TOTP? =
 
 These are the names of the two mathematical algorithms that are used to create the special codes. These are industry-standard algorithms, devised by expert cryptographers. HOTP is less popular, but the device that generates the codes does not need to know the correct time (instead, the codes are generated in a precise sequence). TOTP is much more popular, and generates codes that are only valid for 30 seconds (and so your device needs to know the time). I'd recommend TOTP, as HOTP can be annoying if something causes the sequences to get out of sync.
@@ -92,10 +100,6 @@ These are the names of the two mathematical algorithms that are used to create t
 = What is the shortcode to use for front-end settings? =
 
 [twofactor_user_settings]
-
-= Oops, I lost my device that has passcodes. What to do? =
-
-If you have FTP or cPanel access to your web hosting space, you can de-activate the plugin; see this article: https://updraftplus.com/understanding-wordpress-installs-plugins/
 
 == Screenshots ==
 
@@ -117,8 +121,21 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 9. Where to find the user's personal settings in the dashboard menu
 
+10. Emergency codes (Premium version)
+
+11. Adjusting other users' settings as an admin (Premium version)
+
+12. Building your own design for the page with custom short-codes (Premium version)
 
 == Changelog ==
+
+= 1.1.5 - 07/Apr/2015 =
+
+* FEATURE: Admin users (Premium version - ) can show codes belonging to other users, and activate or de-activate TFA for other users.
+* PREMIUM: Premium version has now been released: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/. Features emergency codes, personal support, and more short-codes allowing you to custom-design your own front-end page for users.
+* TWEAK: Premium version now contains support link to the proper place (not to wordpress.org's free forum)
+* TWEAK: Added a constant, TWO_FACTOR_DISABLE. Define this in your wp-config.php to disable all TFA requirements.
+* FIX: Fix a bug introduced in version 1.1.2 that could prevent logins on SSL-enabled sites on the WooCommerce form when not accessed over SSL
 
 = 1.1.3 - 04/Apr/2015 =
 
@@ -149,4 +166,4 @@ If you have FTP or cPanel access to your web hosting space, you can de-activate 
 
 
 == Upgrade Notice ==
-* 1.1.3 : Provide "Settings saved" notice when user's settings are saved in the admin area (otherwise the user may be wondering).
+* 1.1.5 : Fix bug in 1.1.2 that could affect login on WooCommerce login form on SSL-enabled sites. New TWO_FACTOR_DISABLE constant for quick disabling of all TFA requirements.
