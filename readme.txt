@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.5
+Stable tag: 1.1.4
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
