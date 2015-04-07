@@ -131,7 +131,7 @@ These are the names of the two mathematical algorithms that are used to create t
 
 = 1.1.5 - 07/Apr/2015 =
 
-* FEATURE: Admin users (Premium version - ) can show codes belonging to other users, and activate or de-activate TFA for other users.
+* FEATURE: Admin users (Premium version) can show codes belonging to other users, and activate or de-activate TFA for other users.
 * PREMIUM: Premium version has now been released: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/. Features emergency codes, personal support, and more short-codes allowing you to custom-design your own front-end page for users.
 * TWEAK: Premium version now contains support link to the proper place (not to wordpress.org's free forum)
 * TWEAK: Added a constant, TWO_FACTOR_DISABLE. Define this in your wp-config.php to disable all TFA requirements.
