@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -129,6 +129,10 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.6 - 09/Apr/2015 =
+
+* TWEAK: Change various wordings to make things clearer for new-comers to two-factor authentication.
+
 = 1.1.5 - 07/Apr/2015 =
 
 * FEATURE: Admin users (Premium version) can show codes belonging to other users, and activate or de-activate TFA for other users.
@@ -166,4 +170,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.5 : Fix bug in 1.1.2 that could affect login on WooCommerce login form on SSL-enabled sites. New TWO_FACTOR_DISABLE constant for quick disabling of all TFA requirements.
+* 1.1.6 : Various wordings clarified for better understanding for TFA new-comers.

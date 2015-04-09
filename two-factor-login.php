@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/plugins/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.5
+Version: 1.1.6
 License: GPLv2 or later
 */
 
@@ -503,7 +503,7 @@ class Simba_Two_Factor_Authentication {
 			} ?>
 			<div class="inside">
 				<p>
-					<?php _e('Scan this code with Duo Mobile, Google Authenticator or any other app that supports 6 digit OTPs', SIMBA_TFA_TEXT_DOMAIN); ?>.
+					<?php _e('For OTP apps that support scanning, scanning this code is the quickest way to set the app up (e.g. with Duo Mobile, Google Authenticator)', SIMBA_TFA_TEXT_DOMAIN); ?>.
 					
 					<?php _e('You are currently using', SIMBA_TFA_TEXT_DOMAIN); ?> <?php print strtoupper($algorithm_type).', '.($algorithm_type == 'totp' ? __('a time based', SIMBA_TFA_TEXT_DOMAIN) : __('an event based', SIMBA_TFA_TEXT_DOMAIN)); ?> <?php _e('algorithm', SIMBA_TFA_TEXT_DOMAIN); ?>.
 				</p>
@@ -514,7 +514,7 @@ class Simba_Two_Factor_Authentication {
 
 			<div class="inside">
 
-			<h3 class="normal" style="cursor: default"><?php _e('Private key - always to be kept secret', SIMBA_TFA_TEXT_DOMAIN); ?></h3>
+			<h3 class="normal" style="cursor: default"><?php _e('Private key - always to be kept secret - type this into your app to set it up (instead of scanning the code)', SIMBA_TFA_TEXT_DOMAIN); ?></h3>
 
 				<p>
 					<?php
@@ -648,7 +648,7 @@ class Simba_Two_Factor_Authentication {
 			<?php echo __('These are your personal settings.', SIMBA_TFA_TEXT_DOMAIN).' '.__('Nothing you change here will have any effect on other users.', SIMBA_TFA_TEXT_DOMAIN); ?>
 		</p>
 		<p class="simba_tfa_verify_tfa_notice simba_tfa_intro_notice"><strong>
-			<?php _e('If you activate two-factor authentication, then verify with the One Time Password shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong> <?php if (current_user_can('manage_options')) { ?><a href="https://updraftplus.com/understanding-wordpress-installs-plugins/"><?php _e('You should also bookmark this article about how to de-activate a plugin when you cannot log in.', SIMBA_TFA_TEXT_DOMAIN);?></a><?php } ?>
+			<?php _e('If you activate two-factor authentication, then verify that your two-factor application is showing the same One Time Password as shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong> <?php if (current_user_can('manage_options')) { ?><a href="https://updraftplus.com/understanding-wordpress-installs-plugins/"><?php _e('You should also bookmark this article about how to de-activate a plugin when you cannot log in.', SIMBA_TFA_TEXT_DOMAIN);?></a><?php } ?>
 		</p>
 		<?php
 	}

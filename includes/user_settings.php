@@ -56,7 +56,7 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 		<p>
 			<?php
 				$date_now = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'Y-m-d H:i:s');
-				echo sprintf(__('N.B. It is important for both the server and your TFA device to have accurate time. The current UTC time when this page loaded: %s', SIMBA_TFA_TEXT_DOMAIN), htmlspecialchars($date_now));
+				echo sprintf(__('N.B. It is important for both the web-server and your TFA device to have accurate time. The current UTC time according to the server when this page loaded: %s', SIMBA_TFA_TEXT_DOMAIN), htmlspecialchars($date_now));
 			?>
 		</p>
 		<p>
