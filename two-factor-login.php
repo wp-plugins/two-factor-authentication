@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/plugins/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.6
+Version: 1.1.7
 License: GPLv2 or later
 */
 
@@ -648,7 +648,7 @@ class Simba_Two_Factor_Authentication {
 			<?php echo __('These are your personal settings.', SIMBA_TFA_TEXT_DOMAIN).' '.__('Nothing you change here will have any effect on other users.', SIMBA_TFA_TEXT_DOMAIN); ?>
 		</p>
 		<p class="simba_tfa_verify_tfa_notice simba_tfa_intro_notice"><strong>
-			<?php _e('If you activate two-factor authentication, then verify that your two-factor application is showing the same One Time Password as shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong> <?php if (current_user_can('manage_options')) { ?><a href="https://updraftplus.com/understanding-wordpress-installs-plugins/"><?php _e('You should also bookmark this article about how to de-activate a plugin when you cannot log in.', SIMBA_TFA_TEXT_DOMAIN);?></a><?php } ?>
+			<?php _e('If you activate two-factor authentication, then verify that your two-factor application is showing the same One Time Password as shown on this page before you log out.', SIMBA_TFA_TEXT_DOMAIN); ?></strong> <?php if (current_user_can('manage_options')) { ?><a href="https://wordpress.org/plugins/two-factor-authentication/faq/"><?php _e('You should also bookmark the FAQs, which explain how to de-activate the plugin even if you cannot log in.', SIMBA_TFA_TEXT_DOMAIN);?></a><?php } ?>
 		</p>
 		<?php
 	}

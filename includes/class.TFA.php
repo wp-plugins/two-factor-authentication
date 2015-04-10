@@ -347,8 +347,6 @@ class Simba_TFA  {
 	private function isCallerActive($params)
 	{
 
-		return true;
-
 		if(!preg_match('/(\/xmlrpc\.php)$/', trim($params['caller'])))
 			return true;
 
@@ -395,6 +393,10 @@ class Simba_TFA  {
 	{
 		$key = $this->hash($pw, $salt);
 		$key = pack('H*', $key);
+		// Yes: it's a null encryption key. See: https://wordpress.org/support/topic/warning-mcrypt_decrypt-key-of-size-0-not-supported-by-this-algorithm-only-k?replies=5#post-6806922
+		// Basically: the original plugin had a bug here, which caused a null encryption key. This fails on PHP 5.6+. But, fixing it would break backwards compatibility for existing installs - and note that the only unknown once you have access to the encrypted data is the AUTH_SALT and AUTH_KEY constants... which means that actually the intended encryption was non-portable, + problematic if you lose your wp-config.php or try to migrate data to another site, or changes these values. (Normally changing these values only causes a compulsory re-log-in - but with the intended encryption in the original author's plugin, it'd actually cause a permanent lock-out until you disabled his plugin). If someone has read-access to the database, then it'd be reasonable to assume they have read-access to wp-config.php too: or at least, the number of attackers who can do one and not the other would be small. The "encryption's" not worth it.
+		// In summary: this isn't encryption, and is not intended to be.
+		return str_repeat(chr(0), 16);
 	}
 
 	private function hash($pw, $salt)
@@ -433,6 +435,3 @@ class Simba_TFA  {
 	}
 	
 }
-
-
-?>

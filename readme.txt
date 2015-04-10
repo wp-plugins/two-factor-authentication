@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -40,7 +40,7 @@ Read this! http://www.wired.com/2012/08/apple-amazon-mat-honan-hacking/
 
 This plugin uses the industry standard algorithm [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm) or [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm) for creating One Time Passwords. These are used by Google Authenticator, Authy, and many other OTP applications that you can deploy on your phone etc.
 
-A TOTP code is valid for a certain time. Whatever program you use (i.e. Google Authenticator, etc.) will show a different password every so often.
+A TOTP code is valid for a certain time. Whatever program you use (i.e. Google Authenticator, etc.) will show a different code every so often.
 
 = Plugin Notes =
 
@@ -85,10 +85,14 @@ This depends on your particular make of phone, and your preferences. Google have
 
 Many and various devices and programs can generate the codes. One option is an add-on for your web browser; for example, <a href="https://chrome.google.com/webstore/search/authenticator">here are some apps and add-ons for Google Chrome</a>. Wikipedia <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm#Client_implementations">lists various programs for different computers</a>.
 
-= Oops, I lost my device that has passcodes. What to do? =
+= I lost my device that has pass-codes - or, they don't work. What to do? =
 
-Add this to your wp-config.php file, using FTP or the file manager in your hosting control panel:
+If your pass-code used to work, but no longer does, then check that the time on your device that generates them is accurate.
+
+If you cannot get in and need to disable two-factor authentication, then add this to your wp-config.php file, using FTP or the file manager in your hosting control panel:
+
 define('TWO_FACTOR_DISABLE', true);
+
 Add it next to where any other line beginning with "define" is.
 
 Alternatively, if you have FTP or cPanel access to your web hosting space, you can de-activate the plugin; see this article: https://updraftplus.com/understanding-wordpress-installs-plugins/
@@ -128,6 +132,11 @@ These are the names of the two mathematical algorithms that are used to create t
 12. Building your own design for the page with custom short-codes (Premium version)
 
 == Changelog ==
+
+= 1.1.7 - 10/Apr/2015 =
+
+* FIX: Fix plugin compatibility with PHP 5.6
+* FIX: TFA was always made active on XMLRPC, even when the user turned it off
 
 = 1.1.6 - 09/Apr/2015 =
 
@@ -170,4 +179,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.6 : Various wordings clarified for better understanding for TFA new-comers.
+* 1.1.7 : Fix for PHP 5.6, and XMLRPC setings
