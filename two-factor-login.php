@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Two Factor Authentication
-Plugin URI: https://www.simbahosting.co.uk/plugins/two-factor-authentication/
+Plugin URI: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.7
+Version: 1.1.8
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.5';
+	public $version = '1.1.8';
 	private $php_required = '5.3';
 
 	private $frontend;
@@ -358,25 +358,62 @@ class Simba_Two_Factor_Authentication {
 	}
 
 	public function footer() {
+		$ajax_url = admin_url('admin-ajax.php');
+		// It's possible that FORCE_ADMIN_SSL will make that SSL, whilst the user is on the front-end having logged in over non-SSL - and as a result, their login cookies won't get sent, and they're not registered as logged in.
+		if (!is_admin() && substr(strtolower($ajax_url), 0, 6) == 'https:' && !is_ssl()) {
+			$also_try = 'http:'.substr($ajax_url, 6);
+		}
 		?>
 		<script>
 			jQuery(document).ready(function($) {
 				$('.simbaotp_refresh').click(function(e) {
 					e.preventDefault();
 					$(".simba_current_otp").html('<em><?php echo esc_attr(__('Updating...', SIMBA_TFA_TEXT_DOMAIN));?></em>');
-					$.post('<?php echo esc_js(admin_url('admin-ajax.php'));?>', {
+					$.post('<?php echo esc_js($ajax_url);?>', {
 						action: "simbatfa_shared_ajax",
 						subaction: "refreshotp",
 						nonce: "<?php echo esc_js(wp_create_nonce("tfa_shared_nonce"));?>"
 					}, function(response) {
+						var got_code = '';
 						try {
 							var resp = $.parseJSON(response);
-							$(".simba_current_otp").html(resp.code);
+							got_code = resp.code;
 						} catch(err) {
+							<?php if (!isset($also_try)) { ?>
 							alert("<?php echo esc_js(__('Response:', 'SIMBA_TFA_TEXT_DOMAIN')); ?> "+response);
+							<?php } ?>
 							console.log(response);
 							console.log(err);
 						}
+						<?php
+							if (isset($also_try)) {
+							?>
+							$.post('<?php echo esc_js($also_try);?>', {
+								action: "simbatfa_shared_ajax",
+								subaction: "refreshotp",
+								nonce: "<?php echo esc_js(wp_create_nonce("tfa_shared_nonce"));?>"
+							}, function(response) {
+								try {
+									var resp = $.parseJSON(response);
+									if (resp.code) {
+										$(".simba_current_otp").html(resp.code);
+									} else {
+										console.log(response);
+										console.log("TFA: no code found");
+									}
+								} catch(err) {
+									alert("<?php echo esc_js(__('Response:', 'SIMBA_TFA_TEXT_DOMAIN')); ?> "+response);
+									console.log(response);
+									console.log(err);
+								}
+							});
+							<?php } else { ?>
+						if ('' != got_code) {
+							$(".simba_current_otp").html(got_code);
+						} else {
+							console.log("TFA: no code found");
+						}
+						<?php } ?>
 					});
 				});
 			});

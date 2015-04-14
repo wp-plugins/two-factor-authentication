@@ -43,7 +43,7 @@ class TFA_Frontend {
 				$return_array['al_type_disp'] = $this->tfa_algorithm_info($variables['algorithm_type']);
 			}
 			
-			$return_array['result'] = 'Settings Saved';
+			$return_array['result'] = 'saved';
 			
 			echo json_encode($return_array);
 		}
@@ -117,6 +117,11 @@ class TFA_Frontend {
 	}
 
 	public function wp_footer() {
+		$ajax_url = admin_url('admin-ajax.php');
+		// It's possible that FORCE_ADMIN_SSL will make that SSL, whilst the user is on the front-end having logged in over non-SSL - and as a result, their login cookies won't get sent, and they're not registered as logged in.
+		if (!is_admin() && substr(strtolower($ajax_url), 0, 6) == 'https:' && !is_ssl()) {
+			$also_try = 'http:'.substr($ajax_url, 6);
+		}
 		?>
 
 		<script type="text/javascript">
@@ -160,15 +165,19 @@ class TFA_Frontend {
 					}
 					);
 
-					$.post('<?php echo esc_js(admin_url('admin-ajax.php'));?>', {
+					$.post('<?php echo esc_js($ajax_url);?>', {
 						action: "tfa_frontend",
 						subaction: "savesettings",
 						settings: formData,
 						nonce: "<?php echo wp_create_nonce("tfa_frontend_nonce");?>"
 					}, function(response) {
+						var settings_saved = false;
 						try {
 							var resp = $.parseJSON(response);
-							
+							if (resp.hasOwnProperty('result')) {
+								settings_saved = true;
+								tfa_query_leaving = false;
+							}
 							if (resp.hasOwnProperty('qr')) {
 								$("#tfa_qr_holder").html(resp['qr']);
 							}
@@ -176,14 +185,48 @@ class TFA_Frontend {
 								$("#al_type_name").html(resp['al_type_disp']['disp']);
 								$("#al_type_desc").html(resp['al_type_disp']['desc']);
 							}
-							tfa_query_leaving = false;
 							
 						} catch(err) {
 							console.log(err);
 							console.log(response);
-							alert("<?php echo esc_js(__('Response:', 'SIMBA_TFA_TEXT_DOMAIN')); ?> "+response);
+							<?php if (!isset($also_try)) { ?> alert("<?php echo esc_js(__('Response:', 'SIMBA_TFA_TEXT_DOMAIN')); ?> "+response);<?php } ?>
 						}
-						$.unblockUI();
+						<?php if (isset($also_try)) { ?>
+						if (!settings_saved) {
+							$.post('<?php echo esc_js($also_try);?>', {
+								action: "tfa_frontend",
+								subaction: "savesettings",
+								settings: formData,
+								nonce: "<?php echo wp_create_nonce("tfa_frontend_nonce");?>"
+							}, function(response) {
+
+								try {
+									var resp = $.parseJSON(response);
+									if (resp.hasOwnProperty('result')) {
+										settings_saved = true;
+										tfa_query_leaving = false;
+									}
+									if (resp.hasOwnProperty('qr')) {
+										$("#tfa_qr_holder").html(resp['qr']);
+									}
+									if (resp.hasOwnProperty('al_type_disp')) {
+										$("#al_type_name").html(resp['al_type_disp']['disp']);
+										$("#al_type_desc").html(resp['al_type_disp']['desc']);
+									}
+									
+								} catch(err) {
+									console.log(err);
+									console.log(response);
+									alert("<?php echo esc_js(__('Response:', 'SIMBA_TFA_TEXT_DOMAIN')); ?> "+response);
+								}
+								$.unblockUI();
+							});
+						} else {
+							$.unblockUI();
+						}
+						<?php } else { ?>
+							$.unblockUI();
+						<?php } ?>
 					});
 
 				});

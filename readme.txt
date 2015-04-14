@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.7
+Stable tag: 1.1.8
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -133,6 +133,12 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.8 - 14/Apr/2015 =
+
+* FIX: Fix an issue on sites that forced SSL access to admin area, but not to front-end, whereby AJAX functions could fail (e.g. showing latest code)
+* FIX: Version number was not shown correctly in admin screen since 1.1.5
+* TWEAK: Show proper plugin URI
+
 = 1.1.7 - 10/Apr/2015 =
 
 * FIX: Fix plugin compatibility with PHP 5.6
@@ -179,4 +185,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.7 : Fix for PHP 5.6, and XMLRPC setings
+* 1.1.8 : Fix for front-end AJAX behaviour on sites with forced SSL admin when visiting front-end without SSL
