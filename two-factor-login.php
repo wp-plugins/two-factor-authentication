@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.8
+Version: 1.1.9
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.8';
+	public $version = '1.1.9';
 	private $php_required = '5.3';
 
 	private $frontend;
@@ -623,17 +623,24 @@ class Simba_Two_Factor_Authentication {
 		if(isset($_GET['action']) && $_GET['action'] != 'logout' && $_GET['action'] != 'login') return;
 		
 		// Prevent cacheing when in debug mode
-		$script_ver = (defined('WP_DEBUG') && WP_DEBUG) ? time() : $wp_version;
+		$script_ver = (defined('WP_DEBUG') && WP_DEBUG) ? time() : $this->version;
 
 		wp_enqueue_script( 'tfa-ajax-request', SIMBA_TFA_PLUGIN_URL . '/includes/tfa.js', array( 'jquery' ), $script_ver );
-		wp_localize_script( 'tfa-ajax-request', 'simba_tfasettings', array(
+		$localize = array(
 			'ajaxurl' => admin_url('admin-ajax.php'),
 			'click_to_enter_otp' => __("Click to enter One Time Password", SIMBA_TFA_TEXT_DOMAIN),
 			'enter_username_first' => __('You have to enter a username first.', SIMBA_TFA_TEXT_DOMAIN),
 			'otp' => __("One Time Password (i.e. 2FA)", SIMBA_TFA_TEXT_DOMAIN),
 			'otp_login_help' => __('(check your OTP app to get this password)', SIMBA_TFA_TEXT_DOMAIN),
 			'nonce' => wp_create_nonce("simba_tfa_loginform_nonce")
-		));
+		);
+		// Spinner exists since WC 3.8. Use the proper functions to avoid SSL warnings.
+		if (file_exists(ABSPATH.'wp-admin/images/spinner.gif')) {
+			$localize['spinnerimg'] = admin_url('images/spinner.gif');
+		} elseif (file_exists(ABSPATH.WPINC.'/images/spinner.gif')) {
+			$localize['spinnerimg'] = includes_url('images/spinner.gif');
+		}
+		wp_localize_script( 'tfa-ajax-request', 'simba_tfasettings', $localize);
 	}
 
 	public function tfaShowHOTPOffSyncMessage()
@@ -717,15 +724,24 @@ class Simba_Two_Factor_Authentication {
 
 	// WooCommerce login form
 	public function woocommerce_before_customer_login_form() {
-			wp_enqueue_script( 'tfa-wc-ajax-request', SIMBA_TFA_PLUGIN_URL.'/includes/wooextend.js', array('jquery'), $this->version);
-			wp_localize_script( 'tfa-wc-ajax-request', 'simbatfa_wc_settings', array(
-				'ajaxurl' => admin_url('admin-ajax.php'),
-				'click_to_enter_otp' => __("Enter One Time Password (if you have one)", SIMBA_TFA_TEXT_DOMAIN),
-				'enter_username_first' => __('You have to enter a username first.', SIMBA_TFA_TEXT_DOMAIN),
-				'otp' => __("One Time Password", SIMBA_TFA_TEXT_DOMAIN),
-				'nonce' => wp_create_nonce("simba_tfa_loginform_nonce"),
-				'otp_login_help' => __('(check your OTP app to get this password)', SIMBA_TFA_TEXT_DOMAIN),
-			));
+		$script_ver = (defined('WP_DEBUG') && WP_DEBUG) ? time() : $this->version;
+		wp_enqueue_script( 'tfa-wc-ajax-request', SIMBA_TFA_PLUGIN_URL.'/includes/wooextend.js', array('jquery'), $script_ver);
+		$localize = array(
+			'ajaxurl' => admin_url('admin-ajax.php'),
+			'click_to_enter_otp' => __("Enter One Time Password (if you have one)", SIMBA_TFA_TEXT_DOMAIN),
+			'enter_username_first' => __('You have to enter a username first.', SIMBA_TFA_TEXT_DOMAIN),
+			'otp' => __("One Time Password", SIMBA_TFA_TEXT_DOMAIN),
+			'nonce' => wp_create_nonce("simba_tfa_loginform_nonce"),
+			'otp_login_help' => __('(check your OTP app to get this password)', SIMBA_TFA_TEXT_DOMAIN),
+		);
+		// Spinner exists since WC 3.8. Use the proper functions to avoid SSL warnings.
+		if (file_exists(ABSPATH.'wp-admin/images/spinner.gif')) {
+			$localize['spinnerimg'] = admin_url('images/spinner.gif');
+		} elseif (file_exists(ABSPATH.WPINC.'/images/spinner.gif')) {
+			$localize['spinnerimg'] = includes_url('images/spinner.gif');
+		}
+
+		wp_localize_script( 'tfa-wc-ajax-request', 'simbatfa_wc_settings', $localize);
 	}
 
 }

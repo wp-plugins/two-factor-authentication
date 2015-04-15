@@ -64,26 +64,30 @@ jQuery(document).ready(function($) {
 			return false;
 		}
 		
-		$.ajax(
-			{
-				url: simbatfa_wc_settings.ajaxurl,
-				type: 'POST',
-				data: {
-					action: 'simbatfa-init-otp',
-					nonce: simbatfa_wc_settings.nonce,
-					user: tfa_wc_user_field.val()
-				},
-				dataType: 'json',
-				success: function(response) {
-					submit_can_proceed = true;
-					if (response.status == true) {
-						tfaShowOTPField();
-					} else {
-						$(tfa_wc_form).find('input[type="submit"]:first').click();
-					}
+		
+		if (simbatfa_wc_settings.hasOwnProperty('spinnerimg')) {
+			$(tfa_wc_submit_btn).after('<img class="simbaotp_spinner" src="'+simbatfa_wc_settings.spinnerimg+'" style="margin-left: 4px;height: 20px; position: relative; top: 4px; border:0px; box-shadow:none;">');
+		}
+		
+		$.ajax({
+			url: simbatfa_wc_settings.ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'simbatfa-init-otp',
+				nonce: simbatfa_wc_settings.nonce,
+				user: tfa_wc_user_field.val()
+			},
+			dataType: 'json',
+			success: function(response) {
+				submit_can_proceed = true;
+				if (response.status == true) {
+					$('.simbaotp_spinner').remove();
+					tfaShowOTPField();
+				} else {
+					$(tfa_wc_form).find('input[type="submit"]:first').click();
 				}
 			}
-		);
+		});
 		
 // 		$(tfa_wc_form).off();
 		

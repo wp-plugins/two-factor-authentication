@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -24,6 +24,7 @@ Features (please see the "Screenshots" for more information):
 * TFA can be made available on a per-role basis (e.g. available for admins, but not for subscribers)
 * TFA can be turned on or off by each user
 * Supports front-end editing of settings, via [twofactor_user_settings] shortcode (i.e. users don't need access to the WP dashboard). (The <a href="https://www.simbahosting.co.uk/s3/product/two-factor-authentication/">Premium version</a> allows custom designing of any layout you wish).
+* Works together with "Theme My Login" (https://wordpress.org/plugins/theme-my-login/)
 * Includes support for the WooCommerce login form
 * Does not mention or request second factor until the user has been identified as one with TFA enabled (i.e. nothing is shown to users who do not have it enabled)
 * WP Multisite compatible (plugin should be network activated)
@@ -68,6 +69,8 @@ Basically, it's to do with securing your logins, so that there's more than one l
 By default, your WordPress accounts are protected by only one thing: your password. If that's broken, then everything's wide open.
 
 "Two factor" means adding a second requirement. Usually, this is a code that comes to a device you own (e.g. phone, tablet) - so, someone can't get into your website without getting hold of your device. <a href="https://en.wikipedia.org/wiki/Two_factor_authentication">You can get a longer answer from Wikipedia.</a>
+
+Sometimes it is also called multi-factor authentication instead of two-factor - because someone could secure their systems with as many factors as they like.
 
 = Why should I care? =
 
@@ -133,6 +136,13 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.9 - 15/Apr/2015 =
+
+* TESTING: Tested with "Theme My Login" - http://wordpress.org/plugins/theme-my-login/ - no issues
+* TWEAK: Do a little bit of status logging to the browser's developer console on login forms, to help debugging any issues
+* TWEAK: Add a spinner on login forms whilst TFA status is being checked (WP 3.8+)
+* TWEAK: Make sure that scripts are versionned, to prevent updates not being immediately effective
+
 = 1.1.8 - 14/Apr/2015 =
 
 * FIX: Fix an issue on sites that forced SSL access to admin area, but not to front-end, whereby AJAX functions could fail (e.g. showing latest code)
@@ -185,4 +195,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.8 : Fix for front-end AJAX behaviour on sites with forced SSL admin when visiting front-end without SSL
+* 1.1.9 : Add a spinner, and tested with "Theme My Login"
