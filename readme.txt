@@ -142,6 +142,7 @@ These are the names of the two mathematical algorithms that are used to create t
 * TWEAK: Do a little bit of status logging to the browser's developer console on login forms, to help debugging any issues
 * TWEAK: Add a spinner on login forms whilst TFA status is being checked (WP 3.8+)
 * TWEAK: Make sure that scripts are versionned, to prevent updates not being immediately effective
+* TWEAK: Make sure OTP field on WooCommerce login form receives focus automatically
 
 = 1.1.8 - 14/Apr/2015 =
 

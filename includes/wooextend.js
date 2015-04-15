@@ -48,7 +48,7 @@ jQuery(document).ready(function($) {
 		//Add text and input field
 		p.appendChild(lbl);
 		p.appendChild(tfa_field);
-		tfa_field.focus();
+// 		tfa_field.focus();
 		
 	}
 	
@@ -66,7 +66,7 @@ jQuery(document).ready(function($) {
 		
 		
 		if (simbatfa_wc_settings.hasOwnProperty('spinnerimg')) {
-			$(tfa_wc_submit_btn).after('<img class="simbaotp_spinner" src="'+simbatfa_wc_settings.spinnerimg+'" style="margin-left: 4px;height: 20px; position: relative; top: 4px; border:0px; box-shadow:none;">');
+			$('label[for="rememberme"]').after('<img class="simbaotp_spinner" src="'+simbatfa_wc_settings.spinnerimg+'" style="margin-left: 4px;height: 20px; position: relative; top: 4px; border:0px; box-shadow:none;">');
 		}
 		
 		$.ajax({
@@ -96,7 +96,7 @@ jQuery(document).ready(function($) {
 	function tfaShowOTPField() {
 		$(tfa_wc_user_field).parent().hide();
 		$(tfa_wc_pass_field).parent().hide();
-		$('#tfa_wc_holder').slideDown().find('.input-text:first').focus();
+		$('#tfa_wc_holder').slideDown().find('input[name="two_factor_code"]').focus();
 	}
 	
 });
