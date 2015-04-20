@@ -51,7 +51,7 @@ if(isset($_GET['warning_button_clicked']) && $_GET['warning_button_clicked'] == 
 	?>
 	
 	<!-- New Radios to enable/disable tfa -->
-	<form method="post" action="<?php print esc_attr(add_query_arg('settings-updated', 'true', $_SERVER['REQUEST_URI'])); ?>">
+	<form method="post" action="<?php print esc_url(add_query_arg('settings-updated', 'true', $_SERVER['REQUEST_URI'])); ?>">
 		<h2><?php _e('Activate two factor authentication', SIMBA_TFA_TEXT_DOMAIN); ?></h2>
 		<p>
 			<?php

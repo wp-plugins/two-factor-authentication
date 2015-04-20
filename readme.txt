@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.9
+Stable tag: 1.1.10
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,12 +136,18 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.10 - 20/Apr/2015 =
+
+* SECURITY: Fix possible non-persistent XSS issue in admin area (https://blog.sucuri.net/2015/04/security-advisory-xss-vulnerability-affecting-multiple-wordpress-plugins.html)
+* FIX: Don't get involved on "lost password" forms (intermittent issue with "Theme My Login")
+
 = 1.1.9 - 15/Apr/2015 =
 
 * TESTING: Tested with "Theme My Login" - http://wordpress.org/plugins/theme-my-login/ - no issues
 * TWEAK: Do a little bit of status logging to the browser's developer console on login forms, to help debugging any issues
 * TWEAK: Add a spinner on login forms whilst TFA status is being checked (WP 3.8+)
 * TWEAK: Make sure that scripts are versionned, to prevent updates not being immediately effective
+* TWEAK: Make sure OTP field on WooCommerce login form receives focus automatically
 
 = 1.1.8 - 14/Apr/2015 =
 
@@ -195,4 +201,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.9 : Add a spinner, and tested with "Theme My Login"
+* 1.1.10 : XSS Security fix - all should upgrade

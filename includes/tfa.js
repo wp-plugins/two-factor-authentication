@@ -2,10 +2,14 @@ jQuery(document).ready(function($) {
 	
 	// Return value: whether to submit the form or not
 	function runGenerateOTPCall() {
+		
 		var username = $('#user_login').val() || $('[name="log"]').val();
 		
 		if(!username.length) return false;
 		
+		// If this is a "lost password" form, then exit
+		if ($('#user_login').parents('#lostpasswordform').length) return false;
+
 		if (simba_tfasettings.hasOwnProperty('spinnerimg')) {
 			var styling = 'float:right; margin:6px 12px;';
 			if ($('#theme-my-login #wp-submit').length >0) {
@@ -58,15 +62,17 @@ jQuery(document).ready(function($) {
 	var tfa_cb = function(e) {
 		console.log("Simba TFA: form submit request");
 		
-		e.preventDefault();
 		var res = runGenerateOTPCall();
 		
 		$('#wp-submit').parents('form:first').off();
 		
 		if(!res) return true;
-		
+
+		e.preventDefault();
 		return false;
 	};
+	
+	
 	
 	$('#wp-submit').parents('form:first').on('submit', tfa_cb);
 });

@@ -153,7 +153,7 @@ $tfa->setUserHMACTypes();
 				if(!$tfa_type)
 					print ' - '.__('Default', SIMBA_TFA_TEXT_DOMAIN);
 				else
-					print ' - <a class="button" href="'.add_query_arg(array('tfa_change_to_email' => 1, 'tfa_user_id' => $user->ID)).'">'.__('Change to email', SIMBA_TFA_TEXT_DOMAIN).'</a>';
+					print ' - <a class="button" href="'.esc_url(add_query_arg(array('tfa_change_to_email' => 1, 'tfa_user_id' => $user->ID))).'">'.__('Change to email', SIMBA_TFA_TEXT_DOMAIN).'</a>';
 				print '<br>';
 			}
 		}

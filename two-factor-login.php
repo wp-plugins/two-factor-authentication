@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.9
+Version: 1.1.10
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.9';
+	public $version = '1.1.10';
 	private $php_required = '5.3';
 
 	private $frontend;
@@ -336,7 +336,7 @@ class Simba_Two_Factor_Authentication {
 		} else {
 			$url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . remove_query_arg(array('simbatfa_priv_key_reset', 'noredirect', 'nonce'));
 
-			wp_redirect($url);
+			wp_redirect(esc_url_raw($url));
 		}
 	}
 
@@ -598,7 +598,7 @@ class Simba_Two_Factor_Authentication {
 
 		<div id="tfa_advanced_box" class="tfa_settings_form" style="margin-top: 20px;">
 
-				<?php if (false === $submit_button_callback) { ?><form method="post" action="<?php print add_query_arg('settings-updated', 'true', $_SERVER['REQUEST_URI']); ?>"><?php } ?>
+				<?php if (false === $submit_button_callback) { ?><form method="post" action="<?php print esc_url(add_query_arg('settings-updated', 'true', $_SERVER['REQUEST_URI'])); ?>"><?php } ?>
 
 					<?php _e('Choose which algorithm for One Time Passwords you want to use.', SIMBA_TFA_TEXT_DOMAIN); ?>
 					<p>
