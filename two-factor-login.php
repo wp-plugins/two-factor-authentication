@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.10
+Version: 1.1.11
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.10';
+	public $version = '1.1.11';
 	private $php_required = '5.3';
 
 	private $frontend;
@@ -63,6 +63,7 @@ class Simba_Two_Factor_Authentication {
 		}
 
 		add_action('plugins_loaded', array($this, 'plugins_loaded'));
+		add_action('init', array($this, 'init'));
 
 		//Show off sync message for hotp
 		add_action('admin_notices', array($this, 'tfaShowHOTPOffSyncMessage'));
@@ -73,6 +74,60 @@ class Simba_Two_Factor_Authentication {
 		}
 
 		if (file_exists(SIMBA_TFA_PLUGIN_DIR.'/updater/updater.php')) include_once(SIMBA_TFA_PLUGIN_DIR.'/updater/updater.php');
+
+		if (defined('DOING_AJAX') && DOING_AJAX && defined('WP_ADMIN') && WP_ADMIN && !empty($_REQUEST['action']) && 'simbatfa-init-otp' == $_REQUEST['action']) {
+			// Try to prevent PHP notices breaking the AJAX conversation
+			$this->output_buffering = true;
+			$this->logged = array();
+			set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
+			ob_start();
+		}
+
+	}
+
+	public function get_php_errors($errno, $errstr, $errfile, $errline) {
+		if (0 == error_reporting()) return true;
+		$logline = $this->php_error_to_logline($errno, $errstr, $errfile, $errline);
+		$this->logged[] = $logline;
+		# Don't pass it up the chain (since it's going to be output to the user always)
+		return true;
+	}
+
+	public function php_error_to_logline($errno, $errstr, $errfile, $errline) {
+		switch ($errno) {
+			case 1:		$e_type = 'E_ERROR'; break;
+			case 2:		$e_type = 'E_WARNING'; break;
+			case 4:		$e_type = 'E_PARSE'; break;
+			case 8:		$e_type = 'E_NOTICE'; break;
+			case 16:		$e_type = 'E_CORE_ERROR'; break;
+			case 32:		$e_type = 'E_CORE_WARNING'; break;
+			case 64:		$e_type = 'E_COMPILE_ERROR'; break;
+			case 128:		$e_type = 'E_COMPILE_WARNING'; break;
+			case 256:		$e_type = 'E_USER_ERROR'; break;
+			case 512:		$e_type = 'E_USER_WARNING'; break;
+			case 1024:	$e_type = 'E_USER_NOTICE'; break;
+			case 2048:	$e_type = 'E_STRICT'; break;
+			case 4096:	$e_type = 'E_RECOVERABLE_ERROR'; break;
+			case 8192:	$e_type = 'E_DEPRECATED'; break;
+			case 16384:	$e_type = 'E_USER_DEPRECATED'; break;
+			case 30719:	$e_type = 'E_ALL'; break;
+			default:		$e_type = "E_UNKNOWN ($errno)"; break;
+		}
+
+		if (!is_string($errstr)) $errstr = serialize($errstr);
+
+		if (0 === strpos($errfile, ABSPATH)) $errfile = substr($errfile, strlen(ABSPATH));
+
+		return "PHP event: code $e_type: $errstr (line $errline, $errfile)";
+
+	}
+
+	public function init() {
+		if ((!is_admin() || (defined('DOING_AJAX') && DOING_AJAX)) && is_user_logged_in() && file_exists(SIMBA_TFA_PLUGIN_DIR.'/includes/tfa_frontend.php')) {
+			$this->load_frontend();
+		} else {
+			add_shortcode('twofactor_user_settings', array($this, 'shortcode_when_not_logged_in'));
+		}
 	}
 
 	public function admin_notice_insufficient_php() {
@@ -129,7 +184,18 @@ class Simba_Two_Factor_Authentication {
 			$res = $tfa->preAuth(array('log' => $_POST['user']));
 		}
 
-		echo json_encode(array('status' => $res));
+		$results = array('jsonstarter' => 'justhere', 'status' => $res);
+
+		if (!empty($this->output_buffering)) {
+			if (!empty($this->logged)) {
+				$results['php_output'] = $this->logged;
+			}
+			restore_error_handler();
+			$buffered = ob_get_clean();
+			if ($buffered) $results['extra_output'] = $buffered;
+		}
+
+		echo json_encode($results);
 		exit;
 	}
 	
@@ -703,13 +769,6 @@ class Simba_Two_Factor_Authentication {
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
 		);
-
-		if ((!is_admin() || (defined('DOING_AJAX') && DOING_AJAX)) && is_user_logged_in() && file_exists(SIMBA_TFA_PLUGIN_DIR.'/includes/tfa_frontend.php')) {
-			$this->load_frontend();
-		} else {
-			add_shortcode('twofactor_user_settings', array($this, 'shortcode_when_not_logged_in'));
-		}
-
 	}
 
 	public function load_frontend() {

@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.10
+Stable tag: 1.1.11
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,6 +136,12 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.11 - 21/Apr/2015 =
+
+* TWEAK: Prevent PHP notice if combining with bbPress
+* TWEAK: Added more console logging if TFA AJAX request fails
+* TWEAK: Add some measures to overcome extraneous PHP output breaking the AJAX conversation (e.g. when using strict debugging)
+
 = 1.1.10 - 20/Apr/2015 =
 
 * SECURITY: Fix possible non-persistent XSS issue in admin area (https://blog.sucuri.net/2015/04/security-advisory-xss-vulnerability-affecting-multiple-wordpress-plugins.html)
@@ -201,4 +207,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.10 : XSS Security fix - all should upgrade
+* 1.1.11 : Prevent PHP notice if combined with bbPress

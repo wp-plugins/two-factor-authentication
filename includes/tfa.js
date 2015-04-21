@@ -26,17 +26,47 @@ jQuery(document).ready(function($) {
 				nonce: simba_tfasettings.nonce,
 				user: username
 			},
-			dataType: 'json',
-			success: function(response) {
-				if (response.status === true) {
-					// Don't bother to remove the spinner if the form is being submitted.
-					$('.simbaotp_spinner').remove();
-					console.log("Simba TFA: User has OTP enabled: showing OTP field");
-					tfaShowOTPField();
-				} else {
-					console.log("Simba TFA: User does not have OTP enabled: submitting form");
-					$('#wp-submit').parents('form:first').submit();
+			dataType: 'text',
+			success: function(resp) {
+				try {
+					var json_begins = resp.search('{"jsonstarter":"justhere"');
+					if (json_begins > -1) {
+						if (json_begins > 0) {
+							console.log("Expected JSON marker found at position: "+json_begins);
+							resp = resp.substring(json_begins);
+						}
+					} else {
+						console.log("Expected JSON marker not found");
+					}
+					response = $.parseJSON(resp);
+					if (response.hasOwnProperty('php_output')) {
+						console.log("PHP output was returned (follows)");
+						console.log(response.php_output);
+					}
+					if (response.hasOwnProperty('extra_output')) {
+						console.log("Extra output was returned (follows)");
+						console.log(response.extra_output);
+					}
+					if (response.status === true) {
+						// Don't bother to remove the spinner if the form is being submitted.
+						$('.simbaotp_spinner').remove();
+						console.log("Simba TFA: User has OTP enabled: showing OTP field");
+						tfaShowOTPField();
+					} else {
+						console.log("Simba TFA: User does not have OTP enabled: submitting form");
+						$('#wp-submit').parents('form:first').submit();
+					}
+				} catch(err) {
+					$('#login').html(resp);
+					console.log("Simba TFA: Error when processing response");
+					console.log(err);
+					console.log(resp);
 				}
+			},
+			error: function(jq_xhr, text_status, error_thrown) {
+				console.log("Simba TFA: AJAX error: "+error_thrown+": "+text_status);
+				console.log(jq_xhr);
+				if (jq_xhr.hasOwnProperty('responseText')) { console.log(jq_xhr.responseText);}
 			}
 		});
 		return true;
