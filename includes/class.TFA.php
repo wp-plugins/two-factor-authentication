@@ -114,14 +114,16 @@ class Simba_TFA  {
 	public function preAuth($params)
 	{
 		global $wpdb;
-		$field = filter_var($params['log'], FILTER_VALIDATE_EMAIL) ? 'user_email' : 'user_login';
-		$query = $wpdb->prepare("SELECT ID, user_email from ".$wpdb->users." WHERE ".$field."=%s", $params['log']);
+		$query = filter_var($params['log'], FILTER_VALIDATE_EMAIL) ? $wpdb->prepare("SELECT ID, user_email from ".$wpdb->users." WHERE user_email=%s", $params['log']) : $wpdb->prepare("SELECT ID, user_email from ".$wpdb->users." WHERE user_login=%s", $params['log']);
 		$user = $wpdb->get_row($query);
+		if (!$user && filter_var($params['log'], FILTER_VALIDATE_EMAIL)) {
+			// Corner-case: login looks like an email, but is a username rather than email address
+			$user = $wpdb->get_row($wpdb->prepare("SELECT ID, user_email from ".$wpdb->users." WHERE user_login=%s", $params['log']));
+		}
 		$is_activated_for_user = true;
 		$is_activated_by_user = false;
 		
-		if($user)
-		{
+		if($user) {
 			$tfa_priv_key = get_user_meta($user->ID, 'tfa_priv_key_64', true);
 			$is_activated_for_user = $this->isActivatedForUser($user->ID);
 			$is_activated_by_user = $this->isActivatedByUser($user->ID);
@@ -142,7 +144,7 @@ class Simba_TFA  {
 			}
 			return false;
 		}
-		return true;
+		return false;
 	}
 	
 	public function authUserFromLogin($params)

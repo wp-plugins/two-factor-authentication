@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.11
+Stable tag: 1.1.12
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,6 +136,11 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.12 - 22/Apr/2015 =
+
+* FIX: Fix corner-case where the user's login looked like an email address, but wasn't the account address. In this case, a OTP password was always requested.
+* FIX: When the username does not exist, front-end should not request TFA code.
+
 = 1.1.11 - 21/Apr/2015 =
 
 * TWEAK: Prevent PHP notice if combining with bbPress
@@ -207,4 +212,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.11 : Prevent PHP notice if combined with bbPress
+* 1.1.12 : A couple of corner-case fixes for usernames that looked like email addresses or did not exist
