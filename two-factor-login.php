@@ -5,7 +5,7 @@ Plugin URI: https://www.simbahosting.co.uk/s3/product/two-factor-authentication/
 Description: Secure your WordPress login forms with two factor authentication - including WooCommerce login forms
 Author: David Nutbourne + David Anderson, original plugin by Oskar Hane
 Author URI: https://www.simbahosting.co.uk
-Version: 1.1.12
+Version: 1.1.13
 License: GPLv2 or later
 */
 
@@ -15,7 +15,7 @@ define('SIMBA_TFA_PLUGIN_URL', plugins_url('', __FILE__));
 
 class Simba_Two_Factor_Authentication {
 
-	public $version = '1.1.12';
+	public $version = '1.1.13';
 	private $php_required = '5.3';
 
 	private $frontend;
@@ -432,6 +432,10 @@ class Simba_Two_Factor_Authentication {
 		?>
 		<script>
 			jQuery(document).ready(function($) {
+				$('.simbaotp_qr_container').qrcode({
+					"render": "image",
+					"text": $('.simbaotp_qr_container:first').data('qrcode'),
+				});
 				$('.simbaotp_refresh').click(function(e) {
 					e.preventDefault();
 					$(".simba_current_otp").html('<em><?php echo esc_attr(__('Updating...', SIMBA_TFA_TEXT_DOMAIN));?></em>');
@@ -529,7 +533,10 @@ class Simba_Two_Factor_Authentication {
 		static $added_footer;
 		if (empty($added_footer)) {
 			$added_footer = true;
-			wp_enqueue_script('jquery');
+// 			wp_enqueue_script('jquery');
+			$script_ver = (defined('WP_DEBUG') && WP_DEBUG) ? time() : $this->version;
+			$script_file = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? 'jquery.qrcode.js' : 'jquery.qrcode.min.js';
+			wp_enqueue_script( 'jquery-qrcode', SIMBA_TFA_PLUGIN_URL.'/includes/jquery-qrcode/'.$script_file, array('jquery'), $script_ver);
 			add_action( $admin ? 'admin_footer' : 'wp_footer' , array($this, 'footer'));
 		}
 	}
@@ -611,7 +618,8 @@ class Simba_Two_Factor_Authentication {
 					<?php _e('You are currently using', SIMBA_TFA_TEXT_DOMAIN); ?> <?php print strtoupper($algorithm_type).', '.($algorithm_type == 'totp' ? __('a time based', SIMBA_TFA_TEXT_DOMAIN) : __('an event based', SIMBA_TFA_TEXT_DOMAIN)); ?> <?php _e('algorithm', SIMBA_TFA_TEXT_DOMAIN); ?>.
 				</p>
 				<p title="<?php echo sprintf(__("Private key: %s (base 32: %s)", SIMBA_TFA_TEXT_DOMAIN), $tfa_priv_key, $tfa_priv_key_32);?>">
-					<?php echo $this->tfa_qr_code_url($algorithm_type, $url, $tfa_priv_key) ?>
+					<?php $qr_url = $this->tfa_qr_code_url($algorithm_type, $url, $tfa_priv_key) ?>
+					<div class="simbaotp_qr_container" data-qrcode="<?php echo esc_attr($qr_url); ?>"></div>
 				</p>
 			</div>
 
@@ -745,11 +753,17 @@ class Simba_Two_Factor_Authentication {
 		
 		$tfa = $this->getTFA();
 		
-		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':%2520'.$user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($user->ID);
+		// Old
+// 		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':%2520'.$user->user_login.'%3Fsecret%3D'.Base32::encode($tfa_priv_key).'%26issuer='.$url.'%26counter='.$tfa->getUserCounter($user->ID);
+// 
+// 		$ret = '<img src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='.$encode.'">';
 
-		$ret = '<img src="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='.$encode.'">';
+		// New
+		$encode = 'otpauth://'.$algorithm_type.'/'.$url.':'.$user->user_login.'?secret='.Base32::encode($tfa_priv_key).'&issuer='.$url.'&counter='.$tfa->getUserCounter($user->ID);
 
-		return $ret;
+// 		$ret = '<script>var qr_details = "'.$encode.'"</script>';
+
+		return $encode;
 	}
 
 	public function settings_intro_notices() {

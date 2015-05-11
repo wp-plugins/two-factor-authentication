@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.12
+Stable tag: 1.1.13
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,6 +136,11 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.13 - 11/May/2015 =
+
+* TWEAK: Use jquery-qrcode to generate QR codes, replacing external dependency on Google
+* TWEAK: Update bundled select2 library to 4.0.0 release (was rc2)
+
 = 1.1.12 - 22/Apr/2015 =
 
 * FIX: Fix corner-case where the user's login looked like an email address, but wasn't the account address. In this case, a OTP password was always requested.
@@ -212,4 +217,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.12 : A couple of corner-case fixes for usernames that looked like email addresses or did not exist
+* 1.1.13 : Use jquery-qrcode to generate QR codes, replacing external dependency on Google

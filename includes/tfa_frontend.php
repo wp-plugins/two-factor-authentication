@@ -179,7 +179,10 @@ class TFA_Frontend {
 								tfa_query_leaving = false;
 							}
 							if (resp.hasOwnProperty('qr')) {
-								$("#tfa_qr_holder").html(resp['qr']);
+								$('.simbaotp_qr_container').data('qrcode', resp['qr']).empty().qrcode({
+									"render": "image",
+									"text": resp['qr'],
+								});
 							}
 							if (resp.hasOwnProperty('al_type_disp')) {
 								$("#al_type_name").html(resp['al_type_disp']['disp']);
@@ -207,7 +210,10 @@ class TFA_Frontend {
 										tfa_query_leaving = false;
 									}
 									if (resp.hasOwnProperty('qr')) {
-										$("#tfa_qr_holder").html(resp['qr']);
+										$('.simbaotp_qr_container').data('qrcode', resp['qr']).empty().qrcode({
+											"render": "image",
+											"text": resp['qr'],
+										});
 									}
 									if (resp.hasOwnProperty('al_type_disp')) {
 										$("#al_type_name").html(resp['al_type_disp']['disp']);
