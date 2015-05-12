@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.13
+Stable tag: 1.1.14
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,6 +136,10 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.14 - 12/May/2015 =
+
+* FIX: Add TFA support to the WooCommerce login-on-checkout form (previously, TFA-enabled users could not log in using it)
+
 = 1.1.13 - 11/May/2015 =
 
 * TWEAK: Use jquery-qrcode to generate QR codes, replacing external dependency on Google
@@ -217,4 +221,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.13 : Use jquery-qrcode to generate QR codes, replacing external dependency on Google
+* 1.1.14 : Add support to WooCommerce checkout-page login form
