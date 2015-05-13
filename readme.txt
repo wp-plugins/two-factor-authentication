@@ -2,7 +2,7 @@
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.1.14
+Stable tag: 1.1.15
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -136,6 +136,10 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.15 - 13/May/2015 =
+
+* FIX: Fix conflict with 'reset password' form with "Theme My Login" plugin
+
 = 1.1.14 - 12/May/2015 =
 
 * FIX: Add TFA support to the WooCommerce login-on-checkout form (previously, TFA-enabled users could not log in using it)
@@ -221,4 +225,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.14 : Add support to WooCommerce checkout-page login form
+* 1.1.15 : Fix 'reset password' form with "Theme My Login" plugin

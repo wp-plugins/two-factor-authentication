@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 		if(!username.length) return false;
 		
 		// If this is a "lost password" form, then exit
-		if ($('#user_login').parents('#lostpasswordform').length) return false;
+		if ($('#user_login').parents('#lostpasswordform, #resetpasswordform').length) return false;
 
 		if (simba_tfasettings.hasOwnProperty('spinnerimg')) {
 			var styling = 'float:right; margin:6px 12px;';
