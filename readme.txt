@@ -1,8 +1,8 @@
 === Two Factor Authentication ===
 Tags: auth, two factor auth, login, security, authenticate, password, security, woocommerce, google authenticator, authy, two factor, 2fa
 Requires at least: 3.2
-Tested up to: 4.2
-Stable tag: 1.1.15
+Tested up to: 4.3
+Stable tag: 1.1.18
 Author: DavidAnderson
 Contributors: DavidAnderson, DNutbourne
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -13,7 +13,7 @@ Secure WordPress login with Two Factor Authentication - supports WooCommerce, fr
 
 == Description ==
 
-Secure WordPress login with this two factor authentication (TFA) plugin. Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>, with over 400,000 active installs.
+Secure WordPress login with this two factor authentication (TFA) plugin. Users for whom it is enabled will require a one-time code in order to log in. From the authors of <a href="https://updraftplus.com/">UpdraftPlus - WP's #1 backup/restore plugin</a>, with over 500,000 active installs.
 
 Are you completely new to TFA? <a href="https://wordpress.org/plugins/two-factor-authentication/faq/">If so, please see our FAQ</a>.
 
@@ -136,6 +136,17 @@ These are the names of the two mathematical algorithms that are used to create t
 
 == Changelog ==
 
+= 1.1.18 - 01/Aug/2015 =
+
+* COMPATIBILITY: Tested with WP 4.3 (RC1) and WooCommerce 2.4 (RC1) - no issues found (i.e. previous releases believed to be already compatible)
+* FIX: When the admin is showing codes for other users, QR codes were not displaying correctly since 1.1.13
+
+= 1.1.17 - 22/May/2015 =
+
+* TWEAK: Introduce convenience method for developers wanting to verify that TFA is active (Premium)
+* FIX: Fix operation of [twofactor_conditional] shortcode (Premium)
+* FIX: Fix fatal error introduced in convenience method in 1.1.16
+
 = 1.1.15 - 13/May/2015 =
 
 * FIX: Fix conflict with 'reset password' form with "Theme My Login" plugin
@@ -225,4 +236,4 @@ These are the names of the two mathematical algorithms that are used to create t
 
 
 == Upgrade Notice ==
-* 1.1.15 : Fix 'reset password' form with "Theme My Login" plugin
+* 1.1.18 : Tested on WP 4.3. Fixed small bug in Premium version.
